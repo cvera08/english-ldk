@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>English LDK</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="confetti-layer" id="confetti"></div>
+
+<div class="app">
+
+    <header class="topbar">
+        <button id="btnBack" class="btn-back hidden">← Menú</button>
+        <h1 class="brand">🌟 English LDK</h1>
+        <div class="spacer"></div>
+    </header>
+
+    <main>
+
+        <section id="screen-home" class="screen">
+
+            <p class="tagline">Repasemos el inglés para el próximo examen 🎓</p>
+
+            <button class="card card-featured" id="btnRepaso">
+                <div id="repasoBadge" class="card-badge"></div>
+                <span class="card-icon">🎯</span>
+                <span class="card-title">Repaso general</span>
+                <span class="card-sub">Un poquito de todos los temas</span>
+            </button>
+
+            <div class="count-picker">
+                <span>¿Cuántas preguntas?</span>
+                <div class="count-options" id="countOptions">
+                    <button data-count="8">8</button>
+                    <button data-count="12" class="selected">12</button>
+                    <button data-count="16">16</button>
+                </div>
+            </div>
+
+            <h2 class="section-title">Practicar por tema</h2>
+            <div class="topic-grid" id="topicGrid"></div>
+
+        </section>
+
+        <section id="screen-quiz" class="screen hidden">
+
+            <div class="quiz-progress">
+                <div class="quiz-progress-text" id="quizProgressText"></div>
+                <div class="progress-bar"><div class="progress-fill" id="quizProgressFill"></div></div>
+            </div>
+
+            <div class="quiz-card">
+                <p class="quiz-instruction" id="quizInstruction"></p>
+                <div class="quiz-prompt" id="quizPrompt"></div>
+                <div class="quiz-options" id="quizOptions"></div>
+                <p class="quiz-feedback" id="quizFeedback"></p>
+            </div>
+
+        </section>
+
+        <section id="screen-end" class="screen hidden">
+
+            <div class="end-card">
+                <div class="end-stars" id="endStars"></div>
+                <h2 id="endTitle"></h2>
+                <p id="endScore"></p>
+                <p id="endBest" class="end-best"></p>
+                <div class="end-buttons">
+                    <button id="btnRetry" class="btn-primary">🔁 Jugar de nuevo</button>
+                    <button id="btnMenu" class="btn-secondary">🏠 Menú</button>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="js/icons.js"></script>
+<script src="js/content.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/confetti.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>
