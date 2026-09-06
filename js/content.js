@@ -6,10 +6,14 @@
  * existing one) and the menu, the "Repaso general" mix, the four
  * question types and the score screen all pick it up automatically.
  *
- * Each word is: { en, es, icon }
- *   en   - the English word the quiz teaches (shown as the answer / spoken aloud)
- *   es   - the Spanish translation (shown as a small hint under pictures)
- *   icon - HTML string for the picture: ICONS.emoji('🚗') or ICONS.custom.xxx()
+ * Each word is: { en, es, icon, phrase?, speakAs? }
+ *   en      - the English word the quiz teaches and tests spelling against
+ *   es      - the Spanish translation (used for the topic grid, not shown per-question)
+ *   icon    - HTML string for the picture: ICONS.emoji('🚗') or ICONS.custom.xxx()
+ *   phrase  - optional full sentence spoken instead of `en` (e.g. "I can jump")
+ *   speakAs - optional respelling used only for text-to-speech, when the
+ *             real spelling throws the browser's pronunciation off (e.g.
+ *             "cupboard"'s silent p) — never shown, never tested
  *
  * Source: colegio de Marilé, setiembre 2026 — "INGLES L 2" (examen oficial)
  * y "REPASO PRIMERO" (repaso armado por la mamá) — temas acumulados de los
@@ -63,7 +67,7 @@ const CONTENT = {
             words: [
                 { en: 'chair',     es: 'silla',    icon: ICONS.emoji('🪑') },
                 { en: 'table',     es: 'mesa',     icon: ICONS.custom.table() },
-                { en: 'cupboard',  es: 'armario',  icon: ICONS.custom.cupboard() },
+                { en: 'cupboard',  es: 'armario',  icon: ICONS.custom.cupboard(), speakAs: 'kubberd' },
                 { en: 'sofa',      es: 'sofá',     icon: ICONS.emoji('🛋️') },
                 { en: 'trash can', es: 'papelera', icon: ICONS.emoji('🗑️') },
             ],

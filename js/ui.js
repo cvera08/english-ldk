@@ -129,6 +129,13 @@ const UI = (() => {
         renderOptions(q);
     }
 
+    // what to hand the speech synthesizer — `speakAs` lets a word override
+    // the spelling just for pronunciation (e.g. "cupboard"'s silent p)
+    // without changing what's shown or how it's tested for spelling
+    function speechFor(word){
+        return word.phrase || word.speakAs || word.en;
+    }
+
     function renderPrompt(q){
         if(q.type === 'image_to_word' || q.type === 'spelling_choice'){
             els.quizPrompt.innerHTML = `
@@ -142,7 +149,7 @@ const UI = (() => {
                 <div class="prompt-word">${q.word.en.toUpperCase()}</div>
                 <button class="speaker-btn" id="btnSpeak">🔊 Escuchar</button>`;
             document.getElementById('btnSpeak').addEventListener('click', () => {
-                AUDIO.speak(q.word.phrase || q.word.en);
+                AUDIO.speak(speechFor(q.word));
             });
             return;
         }
@@ -151,8 +158,8 @@ const UI = (() => {
         els.quizPrompt.innerHTML = `
             <button class="speaker-btn speaker-btn-big" id="btnSpeak">🔊 Escuchar</button>`;
         const speakBtn = document.getElementById('btnSpeak');
-        speakBtn.addEventListener('click', () => AUDIO.speak(q.word.phrase || q.word.en));
-        setTimeout(() => AUDIO.speak(q.word.phrase || q.word.en), 300);
+        speakBtn.addEventListener('click', () => AUDIO.speak(speechFor(q.word)));
+        setTimeout(() => AUDIO.speak(speechFor(q.word)), 300);
     }
 
     function renderOptions(q){
