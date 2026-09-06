@@ -119,9 +119,9 @@ const CONTENT = {
             words: [
                 { en: 'run',       es: 'correr',           icon: ICONS.emoji('🏃'), phrase: 'I can run' },
                 { en: 'walk',      es: 'caminar',          icon: ICONS.emoji('🚶'), phrase: 'I can walk' },
-                { en: 'jump',      es: 'saltar',           icon: ICONS.emoji('🤸'), phrase: 'I can jump' },
-                { en: 'hop',       es: 'saltar en un pie', icon: ICONS.emoji('🦘'), phrase: 'I can hop' },
-                { en: 'jump rope', es: 'saltar la soga',   icon: ICONS.emoji('🪢'), phrase: 'I can jump rope' },
+                { en: 'jump',      es: 'saltar',           icon: ICONS.custom.jump(),     phrase: 'I can jump' },
+                { en: 'hop',       es: 'saltar en un pie', icon: ICONS.custom.hop(),      phrase: 'I can hop' },
+                { en: 'jump rope', es: 'saltar la soga',   icon: ICONS.custom.jumpRope(), phrase: 'I can jump rope' },
             ],
         },
     ],

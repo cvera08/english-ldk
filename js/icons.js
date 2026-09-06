@@ -88,6 +88,64 @@ const ICONS = {
                 <circle cx="58" cy="50" r="3.5" fill="#e0577f"/>
             </svg>`;
         },
+
+        // "I can jump" — both feet off the ground, arms up
+        jump(){
+            return `
+            <svg viewBox="0 0 100 100" class="icon-svg">
+                <path d="M30 88 q8 5 16 0 M54 88 q8 5 16 0" stroke="#cdd8e6" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <circle cx="50" cy="22" r="12" fill="#ffd9b3"/>
+                <path d="M39 17 Q42 8 50 8 Q58 8 61 17 Q54 12 50 12 Q46 12 39 17 Z" fill="#6b4226"/>
+                <rect x="40" y="34" width="20" height="26" rx="9" fill="#7fd0e0"/>
+                <line x1="44" y1="38" x2="26" y2="18" stroke="#7fd0e0" stroke-width="8" stroke-linecap="round"/>
+                <line x1="56" y1="38" x2="74" y2="18" stroke="#7fd0e0" stroke-width="8" stroke-linecap="round"/>
+                <circle cx="24" cy="15" r="6" fill="#ffd9b3"/>
+                <circle cx="76" cy="15" r="6" fill="#ffd9b3"/>
+                <path d="M42 58 Q34 66 38 76" stroke="#3955a3" stroke-width="9" fill="none" stroke-linecap="round"/>
+                <path d="M58 58 Q66 66 62 76" stroke="#3955a3" stroke-width="9" fill="none" stroke-linecap="round"/>
+                <ellipse cx="37" cy="79" rx="8" ry="5" fill="#5b7fdb"/>
+                <ellipse cx="63" cy="79" rx="8" ry="5" fill="#5b7fdb"/>
+            </svg>`;
+        },
+
+        // "I can hop" — balanced on one leg, the other bent up, arms out
+        hop(){
+            return `
+            <svg viewBox="0 0 100 100" class="icon-svg">
+                <path d="M24 93 q14 6 28 0" stroke="#cdd8e6" stroke-width="3" fill="none" stroke-linecap="round"/>
+                <circle cx="46" cy="20" r="12" fill="#ffd9b3"/>
+                <path d="M35 15 Q38 6 46 6 Q54 6 57 15 Q50 10 46 10 Q42 10 35 15 Z" fill="#6b4226"/>
+                <rect x="36" y="32" width="20" height="26" rx="9" fill="#7fd0e0"/>
+                <line x1="38" y1="38" x2="18" y2="44" stroke="#7fd0e0" stroke-width="8" stroke-linecap="round"/>
+                <line x1="54" y1="38" x2="74" y2="32" stroke="#7fd0e0" stroke-width="8" stroke-linecap="round"/>
+                <circle cx="16" cy="46" r="6" fill="#ffd9b3"/>
+                <circle cx="76" cy="30" r="6" fill="#ffd9b3"/>
+                <line x1="42" y1="58" x2="40" y2="86" stroke="#3955a3" stroke-width="9" stroke-linecap="round"/>
+                <ellipse cx="38" cy="89" rx="9" ry="5" fill="#5b7fdb"/>
+                <path d="M50 58 Q64 62 62 46" stroke="#3955a3" stroke-width="9" fill="none" stroke-linecap="round"/>
+                <ellipse cx="63" cy="43" rx="8" ry="5" fill="#5b7fdb"/>
+            </svg>`;
+        },
+
+        // "I can jump rope" — mid-jump with the rope looping overhead and underfoot
+        jumpRope(){
+            return `
+            <svg viewBox="0 0 100 100" class="icon-svg">
+                <circle cx="50" cy="34" r="11" fill="#ffd9b3"/>
+                <path d="M40 29 Q43 21 50 21 Q57 21 60 29 Q53 25 50 25 Q47 25 40 29 Z" fill="#6b4226"/>
+                <rect x="41" y="45" width="18" height="22" rx="8" fill="#7fd0e0"/>
+                <line x1="43" y1="49" x2="30" y2="66" stroke="#7fd0e0" stroke-width="7" stroke-linecap="round"/>
+                <line x1="57" y1="49" x2="70" y2="66" stroke="#7fd0e0" stroke-width="7" stroke-linecap="round"/>
+                <circle cx="29" cy="68" r="5" fill="#ffd9b3"/>
+                <circle cx="71" cy="68" r="5" fill="#ffd9b3"/>
+                <path d="M29 68 Q20 30 50 14 Q80 30 71 68" fill="none" stroke="#e85d75" stroke-width="4" stroke-linecap="round"/>
+                <path d="M29 68 Q50 92 71 68" fill="none" stroke="#e85d75" stroke-width="4" stroke-linecap="round"/>
+                <path d="M45 67 Q40 78 44 88" stroke="#3955a3" stroke-width="8" fill="none" stroke-linecap="round"/>
+                <path d="M55 67 Q60 78 56 88" stroke="#3955a3" stroke-width="8" fill="none" stroke-linecap="round"/>
+                <ellipse cx="43" cy="90" rx="7" ry="4" fill="#5b7fdb"/>
+                <ellipse cx="57" cy="90" rx="7" ry="4" fill="#5b7fdb"/>
+            </svg>`;
+        },
     },
 
     /* ---------- shared body / face figure ---------- */
