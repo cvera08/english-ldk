@@ -430,21 +430,23 @@ button{
 /* body diagram markers */
 
 .body-marker-ring{
-    fill: rgba(255,111,181,.25);
+    fill: rgba(255,111,181,.3);
     stroke: var(--pink);
-    stroke-width: 3;
+    stroke-width: 4;
     animation: marker-pulse 1.4s infinite;
     transform-origin: center;
 }
 
 .body-marker-dot{
     fill: var(--pink);
+    stroke: white;
+    stroke-width: 2;
 }
 
 @keyframes marker-pulse{
-    0%   { r: 12; opacity: .9; }
-    70%  { r: 20; opacity: .15; }
-    100% { r: 12; opacity: .9; }
+    0%   { r: 16; opacity: .95; }
+    70%  { r: 27; opacity: .15; }
+    100% { r: 16; opacity: .95; }
 }
 
 /* ---------------- end screen ---------------- */

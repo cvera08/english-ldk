@@ -153,7 +153,7 @@ const ICONS = {
     _bodyPoints: {
         head:  { x: 110, y: 48 },  // forehead, just below the hairline
         hair:  { x: 110, y: 22 },  // top of the hair
-        eyes:  { x: 111, y: 60 },
+        eyes:  [{ x: 95, y: 62 }, { x: 125, y: 62 }], // both eyes, not the gap between them
         ears:  { x: 151, y: 66 },
         nose:  { x: 110, y: 71 },
         mouth: { x: 110, y: 84 },
@@ -167,11 +167,12 @@ const ICONS = {
 
     body(partId){
 
-        const p = ICONS._bodyPoints[partId];
-        const marker = p
-            ? `<circle class="body-marker-ring" cx="${p.x}" cy="${p.y}" r="15" />
-               <circle class="body-marker-dot"  cx="${p.x}" cy="${p.y}" r="6" />`
-            : '';
+        const raw = ICONS._bodyPoints[partId];
+        const points = raw ? (Array.isArray(raw) ? raw : [raw]) : [];
+        const marker = points.map(p => `
+               <circle class="body-marker-ring" cx="${p.x}" cy="${p.y}" r="20" />
+               <circle class="body-marker-dot"  cx="${p.x}" cy="${p.y}" r="8" />`
+        ).join('');
 
         return `
         <svg viewBox="0 0 220 320" class="icon-svg icon-svg-body">
