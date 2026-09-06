@@ -301,12 +301,6 @@ button{
     height: 210px;
 }
 
-.prompt-caption{
-    font-size: 17px;
-    color: var(--muted);
-    font-style: italic;
-}
-
 .prompt-word{
     font-size: clamp(30px, 8vw, 44px);
     font-weight: bold;

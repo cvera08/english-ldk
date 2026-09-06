@@ -138,9 +138,7 @@ const UI = (() => {
 
     function renderPrompt(q){
         if(q.type === 'image_to_word' || q.type === 'spelling_choice'){
-            els.quizPrompt.innerHTML = `
-                <div class="prompt-icon">${q.word.icon}</div>
-                <div class="prompt-caption">${q.word.es}</div>`;
+            els.quizPrompt.innerHTML = `<div class="prompt-icon">${q.word.icon}</div>`;
             return;
         }
 
