@@ -25,15 +25,8 @@
 
             <p class="tagline">Repasemos el inglés para el próximo examen 🎓</p>
 
-            <button class="card card-featured" id="btnRepaso">
-                <div id="repasoBadge" class="card-badge"></div>
-                <span class="card-icon">🎯</span>
-                <span class="card-title">Repaso general</span>
-                <span class="card-sub">Un poquito de todos los temas</span>
-            </button>
-
-            <div class="count-picker">
-                <span>¿Cuántas preguntas?</span>
+            <div class="settings-bar">
+                <span class="settings-label">¿Cuántas preguntas por juego?</span>
                 <div class="count-options" id="countOptions">
                     <button data-count="8">8</button>
                     <button data-count="12" class="selected">12</button>
@@ -41,7 +34,17 @@
                 </div>
             </div>
 
-            <h2 class="section-title">Practicar por tema</h2>
+            <p class="section-hint">Elegí qué jugar 👇</p>
+
+            <button class="card card-featured" id="btnRepaso">
+                <div id="repasoBadge" class="card-badge"></div>
+                <span class="card-icon">🎯</span>
+                <span class="card-title">Repaso general</span>
+                <span class="card-sub">Un poquito de todos los temas</span>
+            </button>
+
+            <div class="or-divider"><span>o practicá un tema</span></div>
+
             <div class="topic-grid" id="topicGrid"></div>
 
         </section>

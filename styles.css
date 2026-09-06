@@ -92,12 +92,6 @@ button{
     margin: 4px 0 20px;
 }
 
-.section-title{
-    color: var(--purple);
-    font-size: 20px;
-    margin: 26px 0 12px;
-}
-
 .card{
     position: relative;
     border: none;
@@ -157,15 +151,51 @@ button{
     letter-spacing: 1px;
 }
 
-.count-picker{
-    margin-top: 18px;
+.settings-bar{
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 14px;
     flex-wrap: wrap;
-    font-size: 16px;
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 999px;
+    padding: 10px 18px;
+    margin-bottom: 14px;
+}
+
+.settings-label{
+    font-size: 15px;
     color: var(--muted);
+    font-weight: bold;
+}
+
+.section-hint{
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0 0 8px;
+}
+
+.or-divider{
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    margin: 20px 0 12px;
+}
+
+.or-divider::before,
+.or-divider::after{
+    content: '';
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+}
+
+.or-divider span{
+    padding: 0 12px;
 }
 
 .count-options{
