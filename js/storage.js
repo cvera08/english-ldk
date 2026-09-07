@@ -41,5 +41,13 @@ const STORAGE = (() => {
         return false;
     }
 
-    return { getBest, saveBest };
+    function resetAll(){
+        try{
+            localStorage.removeItem(KEY);
+        }catch(e){
+            /* ignore — private mode or storage disabled */
+        }
+    }
+
+    return { getBest, saveBest, resetAll };
 })();

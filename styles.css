@@ -226,6 +226,23 @@ button{
     gap: 12px;
 }
 
+.reset-link{
+    display: block;
+    margin: 26px auto 0;
+    border: none;
+    background: none;
+    color: var(--muted);
+    font-size: 14px;
+    text-decoration: underline;
+    padding: 8px;
+}
+
+.reset-link.reset-armed{
+    color: var(--orange);
+    font-weight: bold;
+    text-decoration: none;
+}
+
 /* ---------------- progress bar (shared) ---------------- */
 
 .progress-bar{

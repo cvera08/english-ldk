@@ -33,7 +33,7 @@ const UI = (() => {
             'quizProgressText', 'quizProgressFill',
             'quizInstruction', 'quizPrompt', 'quizOptions', 'quizFeedback',
             'endStars', 'endTitle', 'endScore', 'endBest',
-            'btnRetry', 'btnMenu', 'confetti',
+            'btnRetry', 'btnMenu', 'confetti', 'btnResetScores',
         ].forEach(id => els[id] = document.getElementById(id));
     }
 
@@ -83,6 +83,39 @@ const UI = (() => {
                 state.questionCount = Number(btn.dataset.count);
             });
         });
+    }
+
+    // two-tap reset (like memory-ldk's "start over"): the first tap arms
+    // it and asks to confirm, the second within a few seconds does it —
+    // hard to trigger by accident, no browser confirm() popup needed
+    let resetArmed = false;
+    let resetTimer = null;
+
+    function wireResetScores(){
+        const btn = els.btnResetScores;
+
+        btn.addEventListener('click', () => {
+            if(!resetArmed){
+                resetArmed = true;
+                btn.textContent = '¿Seguro? Tocá de nuevo para borrar';
+                btn.classList.add('reset-armed');
+                clearTimeout(resetTimer);
+                resetTimer = setTimeout(() => disarmReset(btn), 3000);
+                return;
+            }
+
+            STORAGE.resetAll();
+            disarmReset(btn);
+            renderTopicGrid();
+            renderRepasoBadge();
+        });
+    }
+
+    function disarmReset(btn){
+        resetArmed = false;
+        clearTimeout(resetTimer);
+        btn.textContent = '🔄 Reiniciar récords';
+        btn.classList.remove('reset-armed');
     }
 
     /* ---------------- quiz screen ---------------- */
@@ -261,6 +294,7 @@ const UI = (() => {
         renderTopicGrid();
         renderRepasoBadge();
         wireCountPicker();
+        wireResetScores();
 
         els.btnRepaso.addEventListener('click', () => startQuiz('all'));
         els.btnBack.addEventListener('click', goHome);
