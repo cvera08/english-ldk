@@ -73,9 +73,13 @@ const ICONS = {
         table(){
             return `
             <svg viewBox="0 0 100 100" class="icon-svg">
-                <rect x="8" y="30" width="84" height="14" rx="4" fill="#ff9f7a" stroke="#d9663b" stroke-width="3"/>
-                <line x1="18" y1="44" x2="18" y2="86" stroke="#3955a3" stroke-width="7" stroke-linecap="round"/>
-                <line x1="82" y1="44" x2="82" y2="86" stroke="#3955a3" stroke-width="7" stroke-linecap="round"/>
+                <!-- tabletop -->
+                <rect x="14" y="32" width="72" height="14" rx="4" fill="#ff9fc0" stroke="#e0577f" stroke-width="3"/>
+                <!-- all four legs, straight down -->
+                <line x1="24" y1="46" x2="22" y2="88" stroke="#3955a3" stroke-width="8" stroke-linecap="round"/>
+                <line x1="76" y1="46" x2="78" y2="88" stroke="#3955a3" stroke-width="8" stroke-linecap="round"/>
+                <line x1="38" y1="46" x2="37" y2="80" stroke="#3955a3" stroke-width="6" stroke-linecap="round"/>
+                <line x1="62" y1="46" x2="63" y2="80" stroke="#3955a3" stroke-width="6" stroke-linecap="round"/>
             </svg>`;
         },
 
