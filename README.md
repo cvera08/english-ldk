@@ -1,10 +1,18 @@
 # English LDK 🌟📚
 
+[![play](https://img.shields.io/badge/play-cvera08.github.io%2Fenglish--ldk-ff6fb5)](https://cvera08.github.io/english-ldk/)
+
 A tap-only English vocabulary quiz for a six-year-old in first grade (Uruguay),
 built to review for cumulative school exams — built as a small static web app,
 same spirit as `magic-math-kids` and `memory-ldk`.
 
+**▶️ Play it here: https://cvera08.github.io/english-ldk/**
+
 No install, no build step, no accounts, no ads, no tracking. Open the page and play.
+
+On an iPhone or iPad, open that link in Safari, tap the Share icon, then
+**Add to Home Screen** — it gets its own icon and opens full-screen, no address
+bar, like a real app.
 
 ## Why it's built this way
 
@@ -67,6 +75,7 @@ emoji, add a small hand-drawn icon to `ICONS.custom` in `js/icons.js` instead
 ## Running it locally
 
 ```bash
+git clone https://github.com/cvera08/english-ldk.git
 cd english-ldk
 python3 -m http.server 8000
 ```
@@ -74,9 +83,13 @@ python3 -m http.server 8000
 Then open `http://localhost:8000`. It also runs by opening `index.html` directly
 from disk — plain scripts, no build step, nothing to install.
 
+## How it's published
+
+Plain GitHub Pages, serving the `master` branch straight from its root — no
+build step, no workflow file, so there's nothing to fail. Every push to
+`master` is live within a minute or two.
+
 ## Status
 
-Local-only for now, no git repo yet — this is still in the "let's see if it's
-actually useful" stage. Once it's been used for a real exam and holds up, it's
-a good candidate to turn into a git repo the way `memory-ldk` is, so changes can
-be tracked and undone.
+Live and in use for real exam review. Git history goes back to the first local
+version, so any change can be undone if something regresses.
