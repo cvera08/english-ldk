@@ -1,0 +1,13 @@
+{
+  "name": "English LDK",
+  "short_name": "English LDK",
+  "description": "Repaso de vocabulario de inglés, de a toques, para primero de escolar.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#fffafc",
+  "theme_color": "#ff6fb5",
+  "icons": [
+    { "src": "apple-touch-icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
