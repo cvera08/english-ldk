@@ -131,23 +131,30 @@ const ICONS = {
             </svg>`;
         },
 
-        // "I can jump rope" — mid-jump with the rope looping overhead and underfoot
+        // "I can jump rope" — pigtails, pink shirt, green shorts, navy rope
+        // looping overhead and underfoot, matching the girl in the worksheet
         jumpRope(){
             return `
             <svg viewBox="0 0 100 100" class="icon-svg">
-                <circle cx="50" cy="34" r="11" fill="#ffd9b3"/>
-                <path d="M40 29 Q43 21 50 21 Q57 21 60 29 Q53 25 50 25 Q47 25 40 29 Z" fill="#6b4226"/>
-                <rect x="41" y="45" width="18" height="22" rx="8" fill="#7fd0e0"/>
-                <line x1="43" y1="49" x2="30" y2="66" stroke="#7fd0e0" stroke-width="7" stroke-linecap="round"/>
-                <line x1="57" y1="49" x2="70" y2="66" stroke="#7fd0e0" stroke-width="7" stroke-linecap="round"/>
-                <circle cx="29" cy="68" r="5" fill="#ffd9b3"/>
-                <circle cx="71" cy="68" r="5" fill="#ffd9b3"/>
-                <path d="M29 68 Q20 30 50 14 Q80 30 71 68" fill="none" stroke="#e85d75" stroke-width="4" stroke-linecap="round"/>
-                <path d="M29 68 Q50 92 71 68" fill="none" stroke="#e85d75" stroke-width="4" stroke-linecap="round"/>
-                <path d="M45 67 Q40 78 44 88" stroke="#3955a3" stroke-width="8" fill="none" stroke-linecap="round"/>
-                <path d="M55 67 Q60 78 56 88" stroke="#3955a3" stroke-width="8" fill="none" stroke-linecap="round"/>
-                <ellipse cx="43" cy="90" rx="7" ry="4" fill="#5b7fdb"/>
-                <ellipse cx="57" cy="90" rx="7" ry="4" fill="#5b7fdb"/>
+                <path d="M22 55 Q15 25 50 12 Q85 25 78 55" fill="none" stroke="#3955a3" stroke-width="4" stroke-linecap="round"/>
+                <path d="M22 55 Q50 82 78 55" fill="none" stroke="#3955a3" stroke-width="4" stroke-linecap="round"/>
+                <path d="M44 62 Q38 72 42 84" stroke="#ffd9b3" stroke-width="9" fill="none" stroke-linecap="round"/>
+                <path d="M56 62 Q62 72 58 84" stroke="#ffd9b3" stroke-width="9" fill="none" stroke-linecap="round"/>
+                <ellipse cx="41" cy="86" rx="7" ry="4" fill="#3955a3"/>
+                <ellipse cx="59" cy="86" rx="7" ry="4" fill="#3955a3"/>
+                <rect x="39" y="56" width="22" height="14" rx="6" fill="#6fc78a"/>
+                <rect x="40" y="38" width="20" height="22" rx="8" fill="#ff8fb3"/>
+                <line x1="41" y1="42" x2="24" y2="52" stroke="#ff8fb3" stroke-width="7" stroke-linecap="round"/>
+                <line x1="59" y1="42" x2="76" y2="52" stroke="#ff8fb3" stroke-width="7" stroke-linecap="round"/>
+                <circle cx="22" cy="55" r="5" fill="#ffd9b3"/>
+                <circle cx="78" cy="55" r="5" fill="#ffd9b3"/>
+                <circle cx="50" cy="27" r="11" fill="#ffd9b3"/>
+                <path d="M40 22 Q43 14 50 14 Q57 14 60 22 Q53 18 50 18 Q47 18 40 22 Z" fill="#6b4226"/>
+                <circle cx="35" cy="20" r="5" fill="#6b4226"/>
+                <circle cx="65" cy="20" r="5" fill="#6b4226"/>
+                <circle cx="46" cy="27" r="1.6" fill="#3a2a20"/>
+                <circle cx="54" cy="27" r="1.6" fill="#3a2a20"/>
+                <path d="M45 31 Q50 34 55 31" fill="none" stroke="#a8462f" stroke-width="2" stroke-linecap="round"/>
             </svg>`;
         },
     },
