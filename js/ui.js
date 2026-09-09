@@ -36,6 +36,7 @@ const UI = (() => {
             'quizInstruction', 'quizPrompt', 'quizOptions', 'quizFeedback',
             'endStars', 'endTitle', 'endScore', 'endBest', 'btnPracticeMissed',
             'btnRetry', 'btnMenu', 'confetti', 'btnResetScores',
+            'btnViewScores', 'scoresBackdrop', 'scoresList', 'btnCloseScores',
         ].forEach(id => els[id] = document.getElementById(id));
     }
 
@@ -51,15 +52,25 @@ const UI = (() => {
         return html;
     }
 
+    // the small corner badge on a card: stars for an at-a-glance read, plus
+    // the exact fraction underneath — stars alone can't tell you 11/12
+    // apart from 12/12, and that's exactly what you'd want to know to push
+    // for the perfect score, not just "a good score"
+    function scoreBadgeHTML(best){
+        if(!best) return '';
+        return `
+            <div class="card-badge-stars">${renderStars(best.stars)}</div>
+            <div class="card-badge-frac">${best.correct}/${best.total}</div>`;
+    }
+
     /* ---------------- home screen ---------------- */
 
     function renderTopicGrid(){
         els.topicGrid.innerHTML = CONTENT.TOPICS.map(topic => {
             const best = STORAGE.getBest(topic.id);
-            const badge = best ? `<div class="card-badge">${renderStars(best.stars)}</div>` : '';
             return `
                 <button class="card topic-card" data-topic="${topic.id}">
-                    ${badge}
+                    <div class="card-badge">${scoreBadgeHTML(best)}</div>
                     <span class="card-icon">${topic.icon}</span>
                     <span class="card-title">${topic.name.es}</span>
                     <span class="card-sub">${topic.name.en} · ${topic.words.length} palabras</span>
@@ -73,8 +84,50 @@ const UI = (() => {
 
     function renderRepasoBadge(){
         const best = STORAGE.getBest('all');
-        const holder = document.getElementById('repasoBadge');
-        holder.innerHTML = best ? renderStars(best.stars) : '';
+        document.getElementById('repasoBadge').innerHTML = scoreBadgeHTML(best);
+    }
+
+    /* ---------------- scores modal ---------------- */
+
+    // every "game" that can have a best score: repaso general + each topic
+    function scoreEntries(){
+        return [
+            { id: 'all', icon: '🎯', name: 'Repaso general' },
+            ...CONTENT.TOPICS.map(t => ({ id: t.id, icon: t.icon, name: t.name.es })),
+        ];
+    }
+
+    function renderScoresList(){
+        els.scoresList.innerHTML = scoreEntries().map(entry => {
+            const best = STORAGE.getBest(entry.id);
+            const value = best
+                ? `<span class="score-frac">${best.correct}/${best.total}</span>${renderStars(best.stars)}`
+                : `<span class="score-empty">Todavía no jugaste</span>`;
+            return `
+                <div class="score-row">
+                    <span class="score-icon">${entry.icon}</span>
+                    <span class="score-name">${entry.name}</span>
+                    <span class="score-value">${value}</span>
+                </div>`;
+        }).join('');
+    }
+
+    function openScores(){
+        renderScoresList();
+        els.scoresBackdrop.classList.remove('hidden');
+    }
+
+    function closeScores(){
+        els.scoresBackdrop.classList.add('hidden');
+        disarmReset(els.btnResetScores);
+    }
+
+    function wireScoresModal(){
+        els.btnViewScores.addEventListener('click', openScores);
+        els.btnCloseScores.addEventListener('click', closeScores);
+        els.scoresBackdrop.addEventListener('click', (e) => {
+            if(e.target === els.scoresBackdrop) closeScores();
+        });
     }
 
     function wireCountPicker(){
@@ -110,6 +163,7 @@ const UI = (() => {
             disarmReset(btn);
             renderTopicGrid();
             renderRepasoBadge();
+            renderScoresList();
         });
     }
 
@@ -370,6 +424,7 @@ const UI = (() => {
         renderRepasoBadge();
         wireCountPicker();
         wireResetScores();
+        wireScoresModal();
 
         els.btnRepaso.addEventListener('click', () => startQuiz('all'));
         els.btnBack.addEventListener('click', goHome);

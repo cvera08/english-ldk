@@ -56,7 +56,7 @@
 
             <div class="topic-grid" id="topicGrid"></div>
 
-            <button id="btnResetScores" class="reset-link">🔄 Reiniciar récords</button>
+            <button id="btnViewScores" class="reset-link">📊 Ver puntajes</button>
 
         </section>
 
@@ -96,6 +96,22 @@
 
     </main>
 
+</div>
+
+<div class="modal-backdrop hidden" id="scoresBackdrop">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2>📊 Tus puntajes</h2>
+            <button class="modal-close" id="btnCloseScores">✕</button>
+        </div>
+
+        <p class="modal-hint">El puntaje es lo mejor que hiciste en cada tema. Las estrellas
+        son un resumen — acá abajo está el número exacto, para saber si ya llegaste al máximo.</p>
+
+        <div class="scores-list" id="scoresList"></div>
+
+        <button id="btnResetScores" class="reset-link">🔄 Reiniciar récords</button>
+    </div>
 </div>
 
 <script src="js/icons.js"></script>
