@@ -318,6 +318,7 @@ const UI = (() => {
         if(opt.isCorrect){
             btn.classList.add('option-correct');
             els.quizOptions.querySelectorAll('.option').forEach(b => b.disabled = true);
+            AUDIO.correct();
 
             els.quizFeedback.textContent = pick(RIGHT_MESSAGES);
             els.quizFeedback.className = 'quiz-feedback feedback-good';
@@ -347,6 +348,7 @@ const UI = (() => {
             btn.disabled = true;
             btn.classList.add('option-wrong');
             state.attemptedWrong = true;
+            AUDIO.wrong();
 
             els.quizFeedback.textContent = pick(RETRY_MESSAGES);
             els.quizFeedback.className = 'quiz-feedback feedback-retry';
@@ -399,6 +401,7 @@ const UI = (() => {
 
         showScreen('end');
         CONFETTI.burst(els.confetti, 30 + stars * 20);
+        AUDIO.complete();
     }
 
     /* ---------------- screen switching ---------------- */
@@ -425,6 +428,11 @@ const UI = (() => {
         wireCountPicker();
         wireResetScores();
         wireScoresModal();
+
+        // iOS Safari needs one real, synchronous tap to open the gate for
+        // speechSynthesis — grab the very first tap anywhere, before she's
+        // even picked a topic, so later auto-played questions aren't silent
+        document.addEventListener('pointerdown', AUDIO.unlock, { once: true });
 
         els.btnRepaso.addEventListener('click', () => startQuiz('all'));
         els.btnBack.addEventListener('click', goHome);
