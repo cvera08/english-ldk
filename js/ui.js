@@ -238,7 +238,16 @@ const UI = (() => {
 
             els.quizProgressFill.style.width = `${((state.index + 1) / state.session.length) * 100}%`;
 
-            setTimeout(advance, 900);
+            // image_to_word and spelling_choice never make a sound on their
+            // own — say the word once she's answered, right or wrong along
+            // the way, as active-listening reinforcement before moving on.
+            // word_to_image and audio_to_image already have their own 🔊.
+            const silentType = (q.type === 'image_to_word' || q.type === 'spelling_choice');
+            if(silentType && canSpeak(q.word)){
+                AUDIO.speak(speechFor(q.word));
+            }
+
+            setTimeout(advance, silentType ? 1500 : 900);
         }else{
             btn.disabled = true;
             btn.classList.add('option-wrong');
