@@ -137,9 +137,14 @@ const ENGINE = (() => {
         return { type, word, options };
     }
 
-    function buildSession({ words, count, rng = Math.random, types = QUESTION_TYPES }){
+    function buildSession({ words, count, rng = Math.random, types = QUESTION_TYPES, pool }){
 
         if(words.length === 0) return [];
+
+        // `pool` supplies wrong-answer candidates and defaults to `words`;
+        // pass a bigger pool explicitly for a small session (e.g. a
+        // few missed words) so distractors don't run out
+        pool = pool || words;
 
         // sample without replacement, looping the (reshuffled) pool if
         // more questions were requested than there are words
@@ -166,7 +171,7 @@ const ENGINE = (() => {
             if(type === 'audio_to_image' && word.noSpeech){
                 type = 'image_to_word';
             }
-            return buildQuestion(word, words, type, rng);
+            return buildQuestion(word, pool, type, rng);
         });
     }
 

@@ -501,6 +501,24 @@ button{
     min-height: 22px;
 }
 
+.btn-practice-missed{
+    display: block;
+    width: 100%;
+    margin-top: 18px;
+    border: none;
+    border-radius: 16px;
+    background: var(--orange-soft);
+    color: #a35a1a;
+    border: 2px solid var(--orange);
+    font-size: 17px;
+    font-weight: bold;
+    padding: 14px 18px;
+}
+
+.btn-practice-missed:active{
+    transform: scale(.98);
+}
+
 .end-buttons{
     margin-top: 22px;
     display: flex;

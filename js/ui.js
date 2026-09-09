@@ -14,6 +14,8 @@ const UI = (() => {
         topicId: null,
         topicLabel: '',
         questionCount: 12,
+        missedWords: [],  // words gotten wrong at least once this session — offered as a review round after
+        isReview: false,  // true while playing that review round: doesn't touch best-score storage
     };
 
     const INSTRUCTIONS = {
@@ -32,7 +34,7 @@ const UI = (() => {
             'topicGrid', 'countOptions', 'btnRepaso', 'btnBack',
             'quizProgressText', 'quizProgressFill',
             'quizInstruction', 'quizPrompt', 'quizOptions', 'quizFeedback',
-            'endStars', 'endTitle', 'endScore', 'endBest',
+            'endStars', 'endTitle', 'endScore', 'endBest', 'btnPracticeMissed',
             'btnRetry', 'btnMenu', 'confetti', 'btnResetScores',
         ].forEach(id => els[id] = document.getElementById(id));
     }
@@ -120,6 +122,12 @@ const UI = (() => {
 
     /* ---------------- quiz screen ---------------- */
 
+    function allowedTypes(){
+        return AUDIO.supported
+            ? ENGINE.QUESTION_TYPES
+            : ENGINE.QUESTION_TYPES.filter(t => t !== 'audio_to_image');
+    }
+
     function startQuiz(topicId){
         window.speechSynthesis && window.speechSynthesis.cancel();
 
@@ -127,15 +135,41 @@ const UI = (() => {
             ? CONTENT.allWords()
             : CONTENT.topicById(topicId).words.map(w => ({ ...w, topicId }));
 
-        const types = AUDIO.supported
-            ? ENGINE.QUESTION_TYPES
-            : ENGINE.QUESTION_TYPES.filter(t => t !== 'audio_to_image');
-
-        state.session = ENGINE.buildSession({ words, count: Math.min(state.questionCount, words.length * 4), types });
+        state.session = ENGINE.buildSession({
+            words,
+            count: Math.min(state.questionCount, words.length * 4),
+            types: allowedTypes(),
+        });
         state.index = 0;
         state.correctFirstTry = 0;
+        state.missedWords = [];
+        state.isReview = false;
         state.topicId = topicId;
         state.topicLabel = topicId === 'all' ? 'Repaso general' : CONTENT.topicById(topicId).name.es;
+
+        showScreen('quiz');
+        renderQuestion();
+    }
+
+    // an optional round made only of what she got wrong last time —
+    // doesn't touch state.topicId, so "Jugar de nuevo" from here still
+    // replays the full original topic, not just this small review pool
+    function startReview(){
+        if(state.missedWords.length === 0) return;
+
+        window.speechSynthesis && window.speechSynthesis.cancel();
+
+        state.session = ENGINE.buildSession({
+            words: state.missedWords,
+            pool: CONTENT.allWords(),
+            count: state.missedWords.length,
+            types: allowedTypes(),
+        });
+        state.index = 0;
+        state.correctFirstTry = 0;
+        state.missedWords = [];
+        state.isReview = true;
+        state.topicLabel = 'Repaso de errores';
 
         showScreen('quiz');
         renderQuestion();
@@ -234,7 +268,14 @@ const UI = (() => {
             els.quizFeedback.textContent = pick(RIGHT_MESSAGES);
             els.quizFeedback.className = 'quiz-feedback feedback-good';
 
-            if(!state.attemptedWrong) state.correctFirstTry++;
+            if(state.attemptedWrong){
+                const already = state.missedWords.some(
+                    w => w.en === q.word.en && w.topicId === q.word.topicId
+                );
+                if(!already) state.missedWords.push(q.word);
+            }else{
+                state.correctFirstTry++;
+            }
 
             els.quizProgressFill.style.width = `${((state.index + 1) / state.session.length) * 100}%`;
 
@@ -272,8 +313,6 @@ const UI = (() => {
     function showEnd(){
         const total = state.session.length;
         const stars = ENGINE.starsFor(state.correctFirstTry, total);
-        const isNewBest = STORAGE.saveBest(state.topicId, stars, state.correctFirstTry, total);
-        const best = STORAGE.getBest(state.topicId);
 
         els.endStars.innerHTML = renderStars(stars);
 
@@ -284,11 +323,25 @@ const UI = (() => {
             0: '¡Seguimos practicando! 🌱',
         };
         els.endTitle.textContent = titles[stars];
-        els.endScore.textContent = `Acertaste ${state.correctFirstTry} de ${total} a la primera`;
+        els.endScore.textContent = state.isReview
+            ? `Repasaste ${total} palabra${total === 1 ? '' : 's'} — acertaste ${state.correctFirstTry} a la primera`
+            : `Acertaste ${state.correctFirstTry} de ${total} a la primera`;
 
-        els.endBest.textContent = isNewBest
-            ? '🏆 ¡Nuevo mejor puntaje!'
-            : (best ? `Tu mejor puntaje: ${best.correct}/${best.total} ${'★'.repeat(best.stars)}` : '');
+        // a review round is just practice — it never touches the topic's
+        // recorded best score, per Carlos: "que el puntaje quede fijo"
+        if(state.isReview){
+            els.endBest.textContent = '';
+        }else{
+            const isNewBest = STORAGE.saveBest(state.topicId, stars, state.correctFirstTry, total);
+            const best = STORAGE.getBest(state.topicId);
+            els.endBest.textContent = isNewBest
+                ? '🏆 ¡Nuevo mejor puntaje!'
+                : (best ? `Tu mejor puntaje: ${best.correct}/${best.total} ${'★'.repeat(best.stars)}` : '');
+        }
+
+        const missedCount = state.missedWords.length;
+        els.btnPracticeMissed.classList.toggle('hidden', missedCount === 0);
+        els.btnPracticeMissed.textContent = `🔁 Practicar lo que fallé (${missedCount})`;
 
         showScreen('end');
         CONFETTI.burst(els.confetti, 30 + stars * 20);
@@ -322,6 +375,7 @@ const UI = (() => {
         els.btnBack.addEventListener('click', goHome);
         els.btnMenu.addEventListener('click', goHome);
         els.btnRetry.addEventListener('click', () => startQuiz(state.topicId));
+        els.btnPracticeMissed.addEventListener('click', startReview);
     }
 
     return { init };
