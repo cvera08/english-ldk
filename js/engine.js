@@ -157,9 +157,13 @@ const ENGINE = (() => {
         const nextType = makeBag(types, rng);
 
         return picks.map(word => {
-            // spelling questions need words long enough to mutate meaningfully
             let type = nextType();
+            // spelling questions need words long enough to mutate meaningfully
             if(type === 'spelling_choice' && word.en.replace(' ', '').length < 3){
+                type = 'image_to_word';
+            }
+            // a word the voice mangles can't carry a listen-only question
+            if(type === 'audio_to_image' && word.noSpeech){
                 type = 'image_to_word';
             }
             return buildQuestion(word, words, type, rng);

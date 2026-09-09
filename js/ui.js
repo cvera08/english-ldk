@@ -163,10 +163,15 @@ const UI = (() => {
     }
 
     // what to hand the speech synthesizer — `speakAs` lets a word override
-    // the spelling just for pronunciation (e.g. "cupboard"'s silent p)
-    // without changing what's shown or how it's tested for spelling
+    // the spelling just for pronunciation without changing what's shown or
+    // how it's tested for spelling; `noSpeech` opts a word out entirely,
+    // for the handful the browser's voice mangles no matter how it's spelled
     function speechFor(word){
         return word.phrase || word.speakAs || word.en;
+    }
+
+    function canSpeak(word){
+        return AUDIO.supported && !word.noSpeech;
     }
 
     function renderPrompt(q){
@@ -176,21 +181,29 @@ const UI = (() => {
         }
 
         if(q.type === 'word_to_image'){
+            const speakerBtn = canSpeak(q.word)
+                ? `<button class="speaker-btn" id="btnSpeak">🔊 Escuchar</button>`
+                : '';
             els.quizPrompt.innerHTML = `
                 <div class="prompt-word">${q.word.en.toUpperCase()}</div>
-                <button class="speaker-btn" id="btnSpeak">🔊 Escuchar</button>`;
-            document.getElementById('btnSpeak').addEventListener('click', () => {
-                AUDIO.speak(speechFor(q.word));
-            });
+                ${speakerBtn}`;
+            if(speakerBtn){
+                document.getElementById('btnSpeak').addEventListener('click', () => {
+                    AUDIO.speak(speechFor(q.word));
+                });
+            }
             return;
         }
 
-        // audio_to_image
+        // audio_to_image — the engine never hands this a noSpeech word, but
+        // guard anyway so a future content change fails safe, not silent
         els.quizPrompt.innerHTML = `
             <button class="speaker-btn speaker-btn-big" id="btnSpeak">🔊 Escuchar</button>`;
         const speakBtn = document.getElementById('btnSpeak');
-        speakBtn.addEventListener('click', () => AUDIO.speak(speechFor(q.word)));
-        setTimeout(() => AUDIO.speak(speechFor(q.word)), 300);
+        if(canSpeak(q.word)){
+            speakBtn.addEventListener('click', () => AUDIO.speak(speechFor(q.word)));
+            setTimeout(() => AUDIO.speak(speechFor(q.word)), 300);
+        }
     }
 
     function renderOptions(q){
