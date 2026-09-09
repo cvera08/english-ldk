@@ -454,6 +454,19 @@ button{
     stroke-width: 2;
 }
 
+/* whole-limb / whole-shape highlight, for broad parts like "leg" or "foot" */
+.body-marker-region{
+    fill: none;
+    stroke: var(--pink);
+    stroke-linecap: round;
+    animation: marker-region-pulse 1.4s infinite;
+}
+
+@keyframes marker-region-pulse{
+    0%, 100% { opacity: .35; }
+    50%      { opacity: .8; }
+}
+
 @keyframes marker-pulse{
     0%   { r: 16; opacity: .95; }
     70%  { r: 27; opacity: .15; }

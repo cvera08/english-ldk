@@ -161,6 +161,12 @@ const ICONS = {
 
     /* ---------- shared body / face figure ---------- */
 
+    // A broad body part (the whole leg, the whole foot) gets its outline
+    // traced instead of one arbitrary dot — the shape itself carries the
+    // meaning, not just its position, the way "both eyes" beat one dot
+    // between them. A specific small part (the knee joint, the toe tip)
+    // stays a precise point, and sits on the *other* limb so its position
+    // can't be memorized against the broad marker's.
     _bodyPoints: {
         head:  { x: 110, y: 48 },  // forehead, just below the hairline
         hair:  { x: 110, y: 22 },  // top of the hair
@@ -170,20 +176,32 @@ const ICONS = {
         mouth: { x: 110, y: 84 },
         arm:   { x: 72,  y: 145 },
         hand:  { x: 54,  y: 179 },
-        leg:   { x: 128, y: 250 }, // right leg, calf — kept apart from "knee"
-        knee:  { x: 96,  y: 228 }, // left leg, the joint
-        foot:  { x: 84,  y: 282 },
-        toe:   { x: 66,  y: 290 }, // just past the foot's tip
+        leg:   { region: 'line', x1: 120, y1: 195, x2: 130, y2: 270 }, // whole right leg
+        knee:  { x: 95, y: 233 },                                     // just the left knee joint
+        foot:  { region: 'ellipse', cx: 82, cy: 284, rx: 20, ry: 11 }, // whole left foot
+        toe:   { x: 156, y: 286 },                                    // just the right foot's tip
     },
 
     body(partId){
 
         const raw = ICONS._bodyPoints[partId];
-        const points = raw ? (Array.isArray(raw) ? raw : [raw]) : [];
-        const marker = points.map(p => `
+        const entries = raw ? (Array.isArray(raw) ? raw : [raw]) : [];
+
+        const marker = entries.map(p => {
+            if(p.region === 'line'){
+                return `<line class="body-marker-region"
+                              x1="${p.x1}" y1="${p.y1}" x2="${p.x2}" y2="${p.y2}"
+                              stroke-width="34" />`;
+            }
+            if(p.region === 'ellipse'){
+                return `<ellipse class="body-marker-region"
+                                  cx="${p.cx}" cy="${p.cy}" rx="${p.rx + 9}" ry="${p.ry + 9}"
+                                  stroke-width="7" />`;
+            }
+            return `
                <circle class="body-marker-ring" cx="${p.x}" cy="${p.y}" r="20" />
-               <circle class="body-marker-dot"  cx="${p.x}" cy="${p.y}" r="8" />`
-        ).join('');
+               <circle class="body-marker-dot"  cx="${p.x}" cy="${p.y}" r="8" />`;
+        }).join('');
 
         return `
         <svg viewBox="0 0 220 320" class="icon-svg icon-svg-body">
