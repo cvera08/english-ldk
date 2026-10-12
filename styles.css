@@ -128,6 +128,40 @@ button{
     color: rgba(255,255,255,.9);
 }
 
+.card-new{
+    background: linear-gradient(135deg, #ffb347, #ff7eb3);
+    margin-top: 12px;
+    padding: 20px 18px;
+}
+
+.card-new .card-title{
+    font-size: 22px;
+}
+
+.group-title{
+    color: var(--purple);
+    font-size: 17px;
+    margin: 22px 0 10px;
+}
+
+.group-title:first-child{
+    margin-top: 6px;
+}
+
+/* a topic that is new, or grew — top-left, opposite the score badge */
+.chip-new{
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--orange);
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: .4px;
+    padding: 3px 8px;
+    border-radius: 999px;
+}
+
 .card-icon{
     font-size: 42px;
     line-height: 1;

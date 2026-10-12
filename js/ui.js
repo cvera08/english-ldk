@@ -31,7 +31,7 @@ const UI = (() => {
     function cacheEls(){
         [
             'screen-home', 'screen-quiz', 'screen-end',
-            'topicGrid', 'countOptions', 'btnRepaso', 'btnBack',
+            'topicGrid', 'countOptions', 'btnRepaso', 'btnNew', 'newBadge', 'newSub', 'btnBack',
             'quizProgressText', 'quizProgressFill',
             'quizInstruction', 'quizPrompt', 'quizOptions', 'quizFeedback',
             'endStars', 'endTitle', 'endScore', 'endBest', 'btnPracticeMissed',
@@ -63,19 +63,66 @@ const UI = (() => {
             <div class="card-badge-frac">${best.correct}/${best.total}</div>`;
     }
 
+    // "lo nuevo" is a moving target (wave 4 today, wave 5 with the next
+    // batch), so its best score is kept per wave instead of under one key
+    function scoreKey(id){
+        return id === 'new' ? `new-w${CONTENT.latestWave()}` : id;
+    }
+
+    function wordsFor(id){
+        if(id === 'all') return CONTENT.allWords();
+        if(id === 'new') return CONTENT.newWords();
+        return CONTENT.wordsOf(CONTENT.topicById(id));
+    }
+
+    function labelFor(id){
+        if(id === 'all') return 'Repaso general';
+        if(id === 'new') return 'Lo nuevo';
+        return CONTENT.topicById(id).name.es;
+    }
+
     /* ---------------- home screen ---------------- */
 
+    function topicCardHTML(topic){
+        const best = STORAGE.getBest(topic.id);
+        const words = CONTENT.wordsOf(topic);
+        const latest = CONTENT.latestWave();
+        const newCount = latest > CONTENT.DEFAULT_WAVE
+            ? words.filter(w => w.since === latest).length
+            : 0;
+
+        let chip = '';
+        if(newCount === words.length){
+            chip = `<span class="chip-new">NUEVO</span>`;
+        }else if(newCount > 0){
+            chip = `<span class="chip-new">+${newCount} nueva${newCount > 1 ? 's' : ''}</span>`;
+        }
+
+        return `
+            <button class="card topic-card" data-topic="${topic.id}">
+                ${chip}
+                <div class="card-badge">${scoreBadgeHTML(best)}</div>
+                <span class="card-icon">${topic.icon}</span>
+                <span class="card-title">${topic.name.es}</span>
+                <span class="card-sub">${topic.name.en} · ${words.length} palabras</span>
+            </button>`;
+    }
+
+    // topics made entirely of new words go first, under their own heading;
+    // with nothing new yet the grid is just the plain list it always was
     function renderTopicGrid(){
-        els.topicGrid.innerHTML = CONTENT.TOPICS.map(topic => {
-            const best = STORAGE.getBest(topic.id);
-            return `
-                <button class="card topic-card" data-topic="${topic.id}">
-                    <div class="card-badge">${scoreBadgeHTML(best)}</div>
-                    <span class="card-icon">${topic.icon}</span>
-                    <span class="card-title">${topic.name.es}</span>
-                    <span class="card-sub">${topic.name.en} · ${topic.words.length} palabras</span>
-                </button>`;
-        }).join('');
+        const latest = CONTENT.latestWave();
+        const isAllNew = (t) => latest > CONTENT.DEFAULT_WAVE &&
+            CONTENT.wordsOf(t).every(w => w.since === latest);
+
+        const fresh = CONTENT.TOPICS.filter(isAllNew);
+        const seen  = CONTENT.TOPICS.filter(t => !isAllNew(t));
+        const grid  = (list) => `<div class="topic-grid">${list.map(topicCardHTML).join('')}</div>`;
+
+        els.topicGrid.innerHTML = fresh.length
+            ? `<h3 class="group-title">🆕 Temas nuevos</h3>${grid(fresh)}
+               <h3 class="group-title">📚 Ya vistos</h3>${grid(seen)}`
+            : grid(seen);
 
         els.topicGrid.querySelectorAll('[data-topic]').forEach(btn => {
             btn.addEventListener('click', () => startQuiz(btn.dataset.topic));
@@ -87,19 +134,36 @@ const UI = (() => {
         document.getElementById('repasoBadge').innerHTML = scoreBadgeHTML(best);
     }
 
+    // the "Lo nuevo" card only exists while there's something new
+    function renderNewCard(){
+        const words = CONTENT.newWords();
+        els.btnNew.classList.toggle('hidden', words.length === 0);
+        if(words.length === 0) return;
+        els.newSub.textContent = `${words.length} palabras nuevas, de todos los temas`;
+        els.newBadge.innerHTML = scoreBadgeHTML(STORAGE.getBest(scoreKey('new')));
+    }
+
+    function renderHome(){
+        renderTopicGrid();
+        renderRepasoBadge();
+        renderNewCard();
+    }
+
     /* ---------------- scores modal ---------------- */
 
-    // every "game" that can have a best score: repaso general + each topic
+    // every "game" that can have a best score: repaso general, lo nuevo
+    // (while there is any) and each topic
     function scoreEntries(){
         return [
             { id: 'all', icon: '🎯', name: 'Repaso general' },
+            ...(CONTENT.newWords().length ? [{ id: 'new', icon: '🆕', name: 'Lo nuevo' }] : []),
             ...CONTENT.TOPICS.map(t => ({ id: t.id, icon: t.icon, name: t.name.es })),
         ];
     }
 
     function renderScoresList(){
         els.scoresList.innerHTML = scoreEntries().map(entry => {
-            const best = STORAGE.getBest(entry.id);
+            const best = STORAGE.getBest(scoreKey(entry.id));
             const value = best
                 ? `<span class="score-frac">${best.correct}/${best.total}</span>${renderStars(best.stars)}`
                 : `<span class="score-empty">Todavía no jugaste</span>`;
@@ -161,8 +225,7 @@ const UI = (() => {
 
             STORAGE.resetAll();
             disarmReset(btn);
-            renderTopicGrid();
-            renderRepasoBadge();
+            renderHome();
             renderScoresList();
         });
     }
@@ -185,9 +248,7 @@ const UI = (() => {
     function startQuiz(topicId){
         window.speechSynthesis && window.speechSynthesis.cancel();
 
-        const words = topicId === 'all'
-            ? CONTENT.allWords()
-            : CONTENT.topicById(topicId).words.map(w => ({ ...w, topicId }));
+        const words = wordsFor(topicId);
 
         state.session = ENGINE.buildSession({
             words,
@@ -199,7 +260,7 @@ const UI = (() => {
         state.missedWords = [];
         state.isReview = false;
         state.topicId = topicId;
-        state.topicLabel = topicId === 'all' ? 'Repaso general' : CONTENT.topicById(topicId).name.es;
+        state.topicLabel = labelFor(topicId);
 
         showScreen('quiz');
         renderQuestion();
@@ -388,8 +449,8 @@ const UI = (() => {
         if(state.isReview){
             els.endBest.textContent = '';
         }else{
-            const isNewBest = STORAGE.saveBest(state.topicId, stars, state.correctFirstTry, total);
-            const best = STORAGE.getBest(state.topicId);
+            const isNewBest = STORAGE.saveBest(scoreKey(state.topicId), stars, state.correctFirstTry, total);
+            const best = STORAGE.getBest(scoreKey(state.topicId));
             els.endBest.textContent = isNewBest
                 ? '🏆 ¡Nuevo mejor puntaje!'
                 : (best ? `Tu mejor puntaje: ${best.correct}/${best.total} ${'★'.repeat(best.stars)}` : '');
@@ -416,15 +477,13 @@ const UI = (() => {
 
     function goHome(){
         window.speechSynthesis && window.speechSynthesis.cancel();
-        renderTopicGrid();
-        renderRepasoBadge();
+        renderHome();
         showScreen('home');
     }
 
     function init(){
         cacheEls();
-        renderTopicGrid();
-        renderRepasoBadge();
+        renderHome();
         wireCountPicker();
         wireResetScores();
         wireScoresModal();
@@ -435,6 +494,7 @@ const UI = (() => {
         document.addEventListener('pointerdown', AUDIO.unlock, { once: true });
 
         els.btnRepaso.addEventListener('click', () => startQuiz('all'));
+        els.btnNew.addEventListener('click', () => startQuiz('new'));
         els.btnBack.addEventListener('click', goHome);
         els.btnMenu.addEventListener('click', goHome);
         els.btnRetry.addEventListener('click', () => startQuiz(state.topicId));

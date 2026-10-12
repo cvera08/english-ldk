@@ -6,7 +6,7 @@
  * existing one) and the menu, the "Repaso general" mix, the four
  * question types and the score screen all pick it up automatically.
  *
- * Each word is: { en, es, icon, phrase?, speakAs?, noSpeech? }
+ * Each word is: { en, es, icon, phrase?, speakAs?, noSpeech?, since? }
  *   en        - the English word the quiz teaches and tests spelling against
  *   es        - the Spanish translation (used for the topic grid, not shown per-question)
  *   icon      - HTML string for the picture: ICONS.emoji('🚗') or ICONS.custom.xxx()
@@ -18,12 +18,23 @@
  *               listen-only question type and never gets a 🔊 button
  *               (e.g. "cupboard": no respelling we tried sounded right)
  *
- * Source: colegio de Marilé, setiembre 2026 — "INGLES L 2" (examen oficial)
- * y "REPASO PRIMERO" (repaso armado por la mamá) — temas acumulados de los
- * exámenes 1 y 2 de primero.
+ * Waves: exams are cumulative, so everything lives in one bank, and each
+ * topic (or a single word) can carry `since: N` — the wave it was added in.
+ * Anything without it is wave 3, i.e. everything up to the third exam. The
+ * highest wave present is "lo nuevo": it gets its own quiz mode, a NUEVO chip
+ * on its topics, and a "+N nuevas" chip on older topics that grew. To add the
+ * next batch, give the new topics/words `since: 5` — nothing else to touch.
+ *
+ * Sources: colegio de Marilé, setiembre 2026 — "INGLES L 2" (examen oficial)
+ * y "REPASO PRIMERO" (repaso armado por la mamá); octubre 2026 — fotos del
+ * cuaderno de mamá y de los tests fotocopiables del libro "GO! International 1"
+ * (Richmond/Santillana) — all pictures here are our own drawings or emoji,
+ * not the publisher's illustrations (the site is public).
  */
 
 const CONTENT = {
+
+    DEFAULT_WAVE: 3,
 
     TOPICS: [
         {
@@ -131,14 +142,57 @@ const CONTENT = {
                 { en: 'jump rope', es: 'saltar la soga',   icon: ICONS.custom.jumpRope(), phrase: 'I can jump rope' },
             ],
         },
+
+        /* ---------------- wave 4 (octubre 2026) ---------------- */
+
+        {
+            id: 'fruits',
+            icon: '🍎',
+            since: 4,
+            name: { es: 'Las frutas', en: 'Fruits' },
+            words: [
+                { en: 'apple',      es: 'manzana',  icon: ICONS.emoji('🍎') },
+                { en: 'banana',     es: 'banana',   icon: ICONS.emoji('🍌') },
+                { en: 'mangoes',    es: 'mango',    icon: ICONS.emoji('🥭') }, // the worksheet says MANGOES, over one mango
+                { en: 'orange',     es: 'naranja',  icon: ICONS.emoji('🍊') },
+                { en: 'pear',       es: 'pera',     icon: ICONS.emoji('🍐') },
+                { en: 'strawberry', es: 'frutilla', icon: ICONS.emoji('🍓') },
+            ],
+        },
     ],
 
-    /* every word from every topic, flattened, tagged with its topic id —
-       used by the "Repaso general" mode and by the distractor picker */
+    /* a topic's words, each tagged with its topic id and the wave it came in */
+    wordsOf(topic){
+        return topic.words.map(word => ({
+            ...word,
+            topicId: topic.id,
+            since: word.since ?? topic.since ?? CONTENT.DEFAULT_WAVE,
+        }));
+    },
+
+    /* every word from every topic, flattened — used by "Repaso general"
+       and by the distractor picker. A word that appears in two topics
+       (e.g. fish as food and as a pet) is listed once, first topic wins. */
     allWords(){
-        return CONTENT.TOPICS.flatMap(topic =>
-            topic.words.map(word => ({ ...word, topicId: topic.id }))
-        );
+        const seen = new Set();
+        return CONTENT.TOPICS
+            .flatMap(topic => CONTENT.wordsOf(topic))
+            .filter(word => {
+                if(seen.has(word.en)) return false;
+                seen.add(word.en);
+                return true;
+            });
+    },
+
+    latestWave(){
+        return Math.max(...CONTENT.allWords().map(w => w.since));
+    },
+
+    /* "lo nuevo": every word from the latest wave, wherever it lives */
+    newWords(){
+        const latest = CONTENT.latestWave();
+        if(latest <= CONTENT.DEFAULT_WAVE) return [];
+        return CONTENT.allWords().filter(w => w.since === latest);
     },
 
     topicById(id){
