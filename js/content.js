@@ -159,6 +159,26 @@ const CONTENT = {
                 { en: 'strawberry', es: 'frutilla', icon: ICONS.emoji('🍓') },
             ],
         },
+        {
+            id: 'food',
+            icon: '🍽️',
+            since: 4,
+            name: { es: 'La comida y las bebidas', en: 'Food & drinks' },
+            words: [
+                { en: 'cake',    es: 'torta',    icon: ICONS.emoji('🎂') },
+                { en: 'cheese',  es: 'queso',    icon: ICONS.emoji('🧀') },
+                { en: 'chicken', es: 'pollo',    icon: ICONS.emoji('🍗') },
+                { en: 'fish',    es: 'pescado',  icon: ICONS.emoji('🐟') },
+                { en: 'fruits',  es: 'frutas',   icon: ICONS.cluster(['🍎', '🍌', '🍇']) },
+                { en: 'meat',    es: 'carne',    icon: ICONS.emoji('🥩') },
+                { en: 'salad',   es: 'ensalada', icon: ICONS.emoji('🥗') },
+                { en: 'soup',    es: 'sopa',     icon: ICONS.emoji('🍲') },
+                { en: 'yogurt',  es: 'yogur',    icon: ICONS.custom.yogurt() },
+                { en: 'milk',    es: 'leche',    icon: ICONS.custom.milk() },
+                { en: 'water',   es: 'agua',     icon: ICONS.custom.water() },
+                { en: 'juice',   es: 'jugo',     icon: ICONS.emoji('🧃') },
+            ],
+        },
     ],
 
     /* a topic's words, each tagged with its topic id and the wave it came in */

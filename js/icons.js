@@ -16,6 +16,12 @@ const ICONS = {
         return `<span class="icon-emoji">${char}</span>`;
     },
 
+    // a few emoji grouped as one picture, for things with no single emoji
+    // (a basket of fruit): the first sits on top, the rest side by side below
+    cluster(chars){
+        return `<span class="icon-cluster">${chars.map(c => `<span>${c}</span>`).join('')}</span>`;
+    },
+
     custom: {
 
         glue(){
@@ -155,6 +161,54 @@ const ICONS = {
                 <circle cx="46" cy="27" r="1.6" fill="#3a2a20"/>
                 <circle cx="54" cy="27" r="1.6" fill="#3a2a20"/>
                 <path d="M45 31 Q50 34 55 31" fill="none" stroke="#a8462f" stroke-width="2" stroke-linecap="round"/>
+            </svg>`;
+        },
+
+        // ---- food & drinks ----
+
+        yogurt(){
+            return `
+            <svg viewBox="0 0 100 100" class="icon-svg">
+                <rect x="38" y="6" width="24" height="9" rx="3" fill="#b5483f"/>
+                <path d="M41 15 h18 v12 q10 6 10 18 v32 q0 9 -9 9 h-20 q-9 0 -9 -9 v-32 q0 -12 10 -18 z"
+                      fill="#d3ecf7" stroke="#86b9d4" stroke-width="3"/>
+                <g>
+                    <path d="M50 58 C41 51 42 42 47 43 C49 43.5 50 45 50 45 C50 45 51 43.5 53 43 C58 42 59 51 50 58 Z" fill="#e5483f"/>
+                    <path d="M46.5 43.5 L50 41 L53.5 43.5 Z" fill="#4caf6d"/>
+                </g>
+                <g transform="translate(0 14)">
+                    <path d="M50 58 C41 51 42 42 47 43 C49 43.5 50 45 50 45 C50 45 51 43.5 53 43 C58 42 59 51 50 58 Z" fill="#e5483f"/>
+                    <path d="M46.5 43.5 L50 41 L53.5 43.5 Z" fill="#4caf6d"/>
+                </g>
+                <g transform="translate(0 28)">
+                    <path d="M50 58 C41 51 42 42 47 43 C49 43.5 50 45 50 45 C50 45 51 43.5 53 43 C58 42 59 51 50 58 Z" fill="#e5483f"/>
+                    <path d="M46.5 43.5 L50 41 L53.5 43.5 Z" fill="#4caf6d"/>
+                </g>
+            </svg>`;
+        },
+
+        milk(){
+            return `
+            <svg viewBox="0 0 100 100" class="icon-svg">
+                <rect x="45" y="8" width="12" height="9" rx="2" fill="#5b9bc4"/>
+                <path d="M28 34 L50 16 L72 34 Z" fill="#9fcbe8" stroke="#5b9bc4" stroke-width="3" stroke-linejoin="round"/>
+                <rect x="28" y="34" width="44" height="54" fill="#eaf4fb" stroke="#5b9bc4" stroke-width="3"/>
+                <rect x="30" y="52" width="40" height="16" fill="#5b9bc4"/>
+                <circle cx="38" cy="43" r="3" fill="#bcd9ee"/>
+                <circle cx="56" cy="40" r="2.5" fill="#bcd9ee"/>
+                <circle cx="64" cy="47" r="2.5" fill="#bcd9ee"/>
+                <circle cx="40" cy="78" r="3" fill="#bcd9ee"/>
+                <circle cx="60" cy="80" r="3" fill="#bcd9ee"/>
+            </svg>`;
+        },
+
+        water(){
+            return `
+            <svg viewBox="0 0 100 100" class="icon-svg">
+                <rect x="40" y="5" width="20" height="9" rx="2" fill="#9aa7b4"/>
+                <path d="M42 14 h16 v10 q12 8 12 22 v38 q0 8 -8 8 h-24 q-8 0 -8 -8 v-38 q0 -14 12 -22 z"
+                      fill="#a9d6f5" stroke="#4a9bd0" stroke-width="3"/>
+                <rect x="31" y="52" width="38" height="18" fill="#4a9bd0" opacity=".65"/>
             </svg>`;
         },
     },
