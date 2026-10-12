@@ -179,6 +179,22 @@ const CONTENT = {
                 { en: 'juice',   es: 'jugo',     icon: ICONS.emoji('🧃') },
             ],
         },
+        {
+            id: 'pets',
+            icon: '🐶',
+            since: 4,
+            name: { es: 'Las mascotas', en: 'Pets' },
+            words: [
+                { en: 'dog',    es: 'perro',     icon: ICONS.emoji('🐶') },
+                { en: 'cat',    es: 'gato',      icon: ICONS.emoji('🐱') },
+                { en: 'rabbit', es: 'conejo',    icon: ICONS.emoji('🐰') },
+                { en: 'parrot', es: 'loro',      icon: ICONS.emoji('🦜') },
+                { en: 'fish',   es: 'pez',       icon: ICONS.emoji('🐟') }, // also in food; Repaso lists it once
+                { en: 'spider', es: 'araña',     icon: ICONS.emoji('🕷️') },
+                { en: 'mouse',  es: 'ratón',     icon: ICONS.emoji('🐭') },
+                { en: 'snake',  es: 'serpiente', icon: ICONS.emoji('🐍') },
+            ],
+        },
     ],
 
     /* a topic's words, each tagged with its topic id and the wave it came in */
