@@ -223,6 +223,31 @@ const CONTENT = {
                 { en: 'stars',    es: 'estrellas', icon: ICONS.pattern('stars') },
             ],
         },
+        {
+            id: 'weather',
+            icon: '⛅',
+            since: 4,
+            name: { es: 'El clima', en: 'Weather' },
+            words: [
+                { en: 'cloudy', es: 'nublado',   icon: ICONS.emoji('☁️') },
+                { en: 'sunny',  es: 'soleado',   icon: ICONS.emoji('☀️') },
+                { en: 'rainy',  es: 'lluvioso',  icon: ICONS.emoji('🌧️') },
+                { en: 'cold',   es: 'frío',      icon: ICONS.emoji('🥶') },
+                { en: 'hot',    es: 'caluroso',  icon: ICONS.emoji('🥵') },
+            ],
+        },
+        {
+            id: 'seasons',
+            icon: '🍂',
+            since: 4,
+            name: { es: 'Las estaciones', en: 'Seasons' },
+            words: [
+                { en: 'spring', es: 'primavera', icon: ICONS.emoji('🌸') },
+                { en: 'summer', es: 'verano',    icon: ICONS.emoji('🏖️') },
+                { en: 'fall',   es: 'otoño',     icon: ICONS.emoji('🍂') },
+                { en: 'winter', es: 'invierno',  icon: ICONS.emoji('⛄') },
+            ],
+        },
     ],
 
     /* a topic's words, each tagged with its topic id and the wave it came in */
