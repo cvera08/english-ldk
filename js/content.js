@@ -195,6 +195,22 @@ const CONTENT = {
                 { en: 'snake',  es: 'serpiente', icon: ICONS.emoji('🐍') },
             ],
         },
+        {
+            id: 'house',
+            icon: '🏠',
+            since: 4,
+            name: { es: 'La casa', en: 'House' },
+            words: [
+                { en: 'bed',      es: 'cama',     icon: ICONS.emoji('🛏️') },
+                { en: 'rug',      es: 'alfombra', icon: ICONS.custom.rug() },
+                { en: 'lamp',     es: 'lámpara',  icon: ICONS.custom.lamp() },
+                { en: 'clock',    es: 'reloj',    icon: ICONS.emoji('⏰') },
+                { en: 'mirror',   es: 'espejo',   icon: ICONS.emoji('🪞') },
+                { en: 'picture',  es: 'cuadro',   icon: ICONS.emoji('🖼️') },
+                { en: 'pajamas',  es: 'pijama',   icon: ICONS.custom.pajamas() },
+                { en: 'pillow',   es: 'almohada', icon: ICONS.custom.pillow() },
+            ],
+        },
     ],
 
     /* a topic's words, each tagged with its topic id and the wave it came in */

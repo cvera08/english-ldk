@@ -211,6 +211,72 @@ const ICONS = {
                 <rect x="31" y="52" width="38" height="18" fill="#4a9bd0" opacity=".65"/>
             </svg>`;
         },
+
+        // ---- house ----
+
+        rug(){
+            return `
+            <svg viewBox="0 0 100 100" class="icon-svg">
+                <g stroke="#e8c98a" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="12" y1="72" x2="6"  y2="72"/><line x1="15" y1="62" x2="9"  y2="62"/>
+                    <line x1="18" y1="52" x2="12" y2="52"/><line x1="21" y1="42" x2="15" y2="42"/>
+                    <line x1="24" y1="32" x2="18" y2="32"/>
+                    <line x1="80" y1="72" x2="86" y2="72"/><line x1="83" y1="62" x2="89" y2="62"/>
+                    <line x1="86" y1="52" x2="92" y2="52"/><line x1="89" y1="42" x2="95" y2="42"/>
+                    <line x1="92" y1="32" x2="98" y2="32"/>
+                </g>
+                <polygon points="24,32 92,32 80,72 12,72" fill="#b8423d"/>
+                <polygon points="31,38 85,38 75,66 21,66" fill="none" stroke="#f2d9a0" stroke-width="3"/>
+                <polygon points="53,41 66,52 53,63 40,52" fill="#f2d9a0"/>
+            </svg>`;
+        },
+
+        lamp(){
+            return `
+            <svg viewBox="0 0 100 100" class="icon-svg">
+                <path d="M30 10 h40 l10 30 h-60 z" fill="#f0a030" stroke="#c97d10" stroke-width="3" stroke-linejoin="round"/>
+                <ellipse cx="50" cy="40" rx="30" ry="3.5" fill="#ffd27a"/>
+                <rect x="48" y="43" width="4" height="42" fill="#8e9aa6"/>
+                <ellipse cx="50" cy="88" rx="20" ry="5" fill="#8e9aa6"/>
+                <line x1="74" y1="40" x2="74" y2="54" stroke="#8e9aa6" stroke-width="2"/>
+                <circle cx="74" cy="56" r="2.8" fill="#8e9aa6"/>
+            </svg>`;
+        },
+
+        pajamas(){
+            return `
+            <svg viewBox="0 0 100 100" class="icon-svg">
+                <line x1="34" y1="38" x2="19" y2="60" stroke="#6fbf8a" stroke-width="11" stroke-linecap="round"/>
+                <line x1="66" y1="38" x2="81" y2="60" stroke="#6fbf8a" stroke-width="11" stroke-linecap="round"/>
+                <rect x="34" y="58" width="14" height="30" rx="6" fill="#6fbf8a"/>
+                <rect x="52" y="58" width="14" height="30" rx="6" fill="#6fbf8a"/>
+                <ellipse cx="41" cy="90" rx="9" ry="4" fill="#4f6fb5"/>
+                <ellipse cx="59" cy="90" rx="9" ry="4" fill="#4f6fb5"/>
+                <rect x="32" y="30" width="36" height="34" rx="12" fill="#6fbf8a"/>
+                <circle cx="50" cy="20" r="14" fill="#3f8f5a"/>
+                <circle cx="50" cy="22" r="8.5" fill="#ffd9b3"/>
+                <circle cx="42" cy="42" r="2.4" fill="#ffd54f"/><circle cx="58" cy="38" r="2.4" fill="#ff9fc0"/>
+                <circle cx="50" cy="50" r="2.4" fill="#ffd54f"/><circle cx="40" cy="58" r="2.4" fill="#ff9fc0"/>
+                <circle cx="60" cy="56" r="2.4" fill="#ffd54f"/><circle cx="41" cy="76" r="2.4" fill="#ff9fc0"/>
+                <circle cx="59" cy="72" r="2.4" fill="#ffd54f"/>
+            </svg>`;
+        },
+
+        pillow(){
+            return `
+            <svg viewBox="0 0 100 100" class="icon-svg">
+                <path d="M16 26 Q50 14 84 26 Q92 50 84 74 Q50 86 16 74 Q8 50 16 26 Z"
+                      fill="#f7b9cc" stroke="#e48aa8" stroke-width="3" stroke-linejoin="round"/>
+                <circle cx="16" cy="26" r="4" fill="#f7b9cc" stroke="#e48aa8" stroke-width="2.5"/>
+                <circle cx="84" cy="26" r="4" fill="#f7b9cc" stroke="#e48aa8" stroke-width="2.5"/>
+                <circle cx="84" cy="74" r="4" fill="#f7b9cc" stroke="#e48aa8" stroke-width="2.5"/>
+                <circle cx="16" cy="74" r="4" fill="#f7b9cc" stroke="#e48aa8" stroke-width="2.5"/>
+                <g fill="#ffe3ec">
+                    <circle cx="34" cy="38" r="3.2"/><circle cx="56" cy="34" r="3.2"/><circle cx="72" cy="46" r="3.2"/>
+                    <circle cx="44" cy="52" r="3.2"/><circle cx="28" cy="60" r="3.2"/><circle cx="62" cy="64" r="3.2"/>
+                </g>
+            </svg>`;
+        },
     },
 
     /* ---------- shared body / face figure ---------- */
