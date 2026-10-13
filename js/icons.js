@@ -16,6 +16,51 @@ const ICONS = {
         return `<span class="icon-emoji">${char}</span>`;
     },
 
+    /* ---------- patterns: a rounded swatch showing the pattern itself ---------- */
+
+    _starPoints(cx, cy, r){
+        const pts = [];
+        for(let i = 0; i < 10; i++){
+            const radius = i % 2 === 0 ? r : r * 0.45;
+            const angle = -Math.PI / 2 + i * Math.PI / 5;
+            pts.push(`${(cx + radius * Math.cos(angle)).toFixed(1)},${(cy + radius * Math.sin(angle)).toFixed(1)}`);
+        }
+        return pts.join(' ');
+    },
+
+    pattern(kind){
+        const grid = [28, 50, 72];
+        let bg = '#ffffff';
+        let body = '';
+
+        if(kind === 'spots'){
+            bg = '#ffd1e0';
+            body = grid.flatMap(y => grid.map(x => `<circle cx="${x}" cy="${y}" r="6" fill="#e0577f"/>`)).join('');
+        }else if(kind === 'diamonds'){
+            bg = '#e8f3ff';
+            body = grid.flatMap(y => grid.map(x =>
+                `<polygon points="${x},${y - 9} ${x + 9},${y} ${x},${y + 9} ${x - 9},${y}" fill="#5b9bd5"/>`
+            )).join('');
+        }else if(kind === 'stripes'){
+            bg = '#eaffef';
+            body = [0, 2, 4].map(k =>
+                `<rect x="${12 + k * 12.667}" y="12" width="12.667" height="76" fill="#4caf6d" clip-path="url(#pattern-clip)"/>`
+            ).join('');
+        }else if(kind === 'stars'){
+            bg = '#fff3c4';
+            body = [[30, 30], [70, 30], [50, 50], [30, 70], [70, 70]]
+                .map(([x, y]) => `<polygon points="${ICONS._starPoints(x, y, 11)}" fill="#f0b429"/>`).join('');
+        }
+
+        return `
+        <svg viewBox="0 0 100 100" class="icon-svg">
+            <defs><clipPath id="pattern-clip"><rect x="12" y="12" width="76" height="76" rx="12"/></clipPath></defs>
+            <rect x="12" y="12" width="76" height="76" rx="12" fill="${bg}"/>
+            ${body}
+            <rect x="12" y="12" width="76" height="76" rx="12" fill="none" stroke="#b9a7c4" stroke-width="3"/>
+        </svg>`;
+    },
+
     // a few emoji grouped as one picture, for things with no single emoji
     // (a basket of fruit): the first sits on top, the rest side by side below
     cluster(chars){

@@ -211,6 +211,18 @@ const CONTENT = {
                 { en: 'pillow',   es: 'almohada', icon: ICONS.custom.pillow() },
             ],
         },
+        {
+            id: 'patterns',
+            icon: '🔷',
+            since: 4,
+            name: { es: 'Lunares, rayas y más', en: 'Patterns' },
+            words: [
+                { en: 'spots',    es: 'lunares',   icon: ICONS.pattern('spots') },
+                { en: 'diamonds', es: 'rombos',    icon: ICONS.pattern('diamonds') },
+                { en: 'stripes',  es: 'rayas',     icon: ICONS.pattern('stripes') },
+                { en: 'stars',    es: 'estrellas', icon: ICONS.pattern('stars') },
+            ],
+        },
     ],
 
     /* a topic's words, each tagged with its topic id and the wave it came in */
