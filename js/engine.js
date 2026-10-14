@@ -108,7 +108,48 @@ const ENGINE = (() => {
         return [...results];
     }
 
+    /* ---------- special question types ----------
+       The four generic types work for any word. These only make sense for
+       some words, so each word is checked against them (specialTypesFor)
+       and they're mixed in on top, with SPECIAL_CHANCE per eligible word:
+
+         count_objects   a number word (has `count`): N emoji to count,
+                         pick the number word            — "five sharpeners"
+    */
+
+    const SPECIAL_CHANCE = 0.4;
+    const COUNT_ITEMS = ['⭐', '🍎', '🎈', '🐟', '⚽', '🍪', '🌸', '🚗'];
+
+    function specialTypesFor(word){
+        const types = [];
+        if(typeof word.count === 'number') types.push('count_objects');
+        return types;
+    }
+
+    function buildCountQuestion(word, pool, rng){
+        const n = word.count;
+        const item = COUNT_ITEMS[Math.floor(rng() * COUNT_ITEMS.length)];
+
+        // wrong answers close to the right one, so it takes actual counting
+        const near = pool
+            .filter(w => typeof w.count === 'number' && w.count !== n)
+            .map(w => ({ w, distance: Math.abs(w.count - n) + rng() * 0.9 }))
+            .sort((a, b) => a.distance - b.distance)
+            .slice(0, 2)
+            .map(entry => entry.w);
+
+        const options = shuffle(
+            [word, ...near].map(w => ({ text: w.en, isCorrect: sameWord(w, word) })),
+            rng
+        );
+        return { type: 'count_objects', word, item, n, options };
+    }
+
     function buildQuestion(word, pool, type, rng = Math.random){
+
+        if(type === 'count_objects'){
+            return buildCountQuestion(word, pool, rng);
+        }
 
         if(type === 'spelling_choice'){
             const wrongSpellings = spellingDistractors(word, rng);
@@ -137,7 +178,7 @@ const ENGINE = (() => {
         return { type, word, options };
     }
 
-    function buildSession({ words, count, rng = Math.random, types = QUESTION_TYPES, pool }){
+    function buildSession({ words, count, rng = Math.random, types = QUESTION_TYPES, pool, special = true }){
 
         if(words.length === 0) return [];
 
@@ -162,6 +203,13 @@ const ENGINE = (() => {
         const nextType = makeBag(types, rng);
 
         return picks.map(word => {
+            // words that qualify for a special type get it some of the time
+            const specials = special ? specialTypesFor(word) : [];
+            if(specials.length && rng() < SPECIAL_CHANCE){
+                const type = specials[Math.floor(rng() * specials.length)];
+                return buildQuestion(word, pool, type, rng);
+            }
+
             let type = nextType();
             // spelling questions need words long enough to mutate meaningfully
             if(type === 'spelling_choice' && word.en.replace(' ', '').length < 3){
@@ -190,6 +238,7 @@ const ENGINE = (() => {
         buildQuestion,
         buildSession,
         starsFor,
+        specialTypesFor,
         QUESTION_TYPES,
     };
 })();

@@ -23,7 +23,15 @@ const UI = (() => {
         word_to_image:   'Tocá el dibujo correcto',
         audio_to_image:  'Escuchá y tocá el dibujo correcto',
         spelling_choice: '¿Cómo se escribe en inglés?',
+        count_objects:   'Contá y elegí el número',
     };
+
+    // types that never make a sound on their own; once she answers, the
+    // word is spoken as active-listening reinforcement
+    const SILENT_TYPES = ['image_to_word', 'spelling_choice', 'count_objects'];
+
+    // types whose answers are written words, not pictures
+    const TEXT_ANSWER_TYPES = ['image_to_word', 'spelling_choice', 'count_objects'];
 
     const RIGHT_MESSAGES = ['¡Muy bien! ✅', '¡Genial! 🌟', '¡Exacto! 🎉', '¡Perfecto! 💫', '¡Así se hace! 👏'];
     const RETRY_MESSAGES = ['¡Casi! Probá de nuevo 💪', 'No es esa, ¡intentá otra! 🤔', 'Cerca... ¡una más! 🌈'];
@@ -329,6 +337,12 @@ const UI = (() => {
             return;
         }
 
+        if(q.type === 'count_objects'){
+            els.quizPrompt.innerHTML = `
+                <div class="count-grid">${Array.from({ length: q.n }, () => `<span>${q.item}</span>`).join('')}</div>`;
+            return;
+        }
+
         if(q.type === 'word_to_image'){
             const speakerBtn = canSpeak(q.word)
                 ? `<button class="speaker-btn" id="btnSpeak">🔊 Escuchar</button>`
@@ -356,7 +370,7 @@ const UI = (() => {
     }
 
     function renderOptions(q){
-        const isTextOptions = q.type === 'image_to_word' || q.type === 'spelling_choice';
+        const isTextOptions = TEXT_ANSWER_TYPES.includes(q.type);
 
         els.quizOptions.innerHTML = q.options.map((opt, i) => {
             if(isTextOptions){
@@ -399,7 +413,7 @@ const UI = (() => {
             // own — say the word once she's answered, right or wrong along
             // the way, as active-listening reinforcement before moving on.
             // word_to_image and audio_to_image already have their own 🔊.
-            const silentType = (q.type === 'image_to_word' || q.type === 'spelling_choice');
+            const silentType = SILENT_TYPES.includes(q.type);
             if(silentType && canSpeak(q.word)){
                 AUDIO.speak(speechFor(q.word));
             }

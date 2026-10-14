@@ -459,6 +459,17 @@ button{
     line-height: 1;
 }
 
+/* "count the objects" question: N emoji wrapped into a few centered rows */
+.count-grid{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 8px;
+    max-width: 330px;
+    font-size: 46px;
+    line-height: 1;
+}
+
 .icon-cluster{
     display: grid;
     grid-template-columns: repeat(2, auto);
