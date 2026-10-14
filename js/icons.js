@@ -61,6 +61,27 @@ const ICONS = {
         </svg>`;
     },
 
+    // a numeral in a round badge — the digit is the picture, the word is the answer
+    number(n){
+        const size = n >= 10 ? 38 : 54;
+        const y = n >= 10 ? 63 : 69;
+        return `
+        <svg viewBox="0 0 100 100" class="icon-svg">
+            <circle cx="50" cy="50" r="42" fill="#ffe6f2" stroke="#ff6fb5" stroke-width="4"/>
+            <text x="50" y="${y}" font-size="${size}" font-weight="bold" text-anchor="middle"
+                  fill="#ff6fb5" font-family="Arial, Helvetica, sans-serif">${n}</text>
+        </svg>`;
+    },
+
+    // a plain round blob of one color, with a little shine
+    swatch(hex){
+        return `
+        <svg viewBox="0 0 100 100" class="icon-svg">
+            <circle cx="50" cy="50" r="40" fill="${hex}" stroke="rgba(0,0,0,.18)" stroke-width="3"/>
+            <ellipse cx="36" cy="34" rx="11" ry="7" fill="#ffffff" opacity=".35" transform="rotate(-30 36 34)"/>
+        </svg>`;
+    },
+
     // a few emoji grouped as one picture, for things with no single emoji
     // (a basket of fruit): the first sits on top, the rest side by side below
     cluster(chars){

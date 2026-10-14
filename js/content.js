@@ -248,6 +248,37 @@ const CONTENT = {
                 { en: 'winter', es: 'invierno',  icon: ICONS.emoji('⛄') },
             ],
         },
+        {
+            id: 'numbers',
+            icon: '🔢',
+            since: 4,
+            name: { es: 'Los números', en: 'Numbers' },
+            words: [
+                { en: 'one',   es: 'uno',    icon: ICONS.number(1),  count: 1 },
+                { en: 'two',   es: 'dos',    icon: ICONS.number(2),  count: 2 },
+                { en: 'three', es: 'tres',   icon: ICONS.number(3),  count: 3 },
+                { en: 'four',  es: 'cuatro', icon: ICONS.number(4),  count: 4 },
+                { en: 'five',  es: 'cinco',  icon: ICONS.number(5),  count: 5 },
+                { en: 'six',   es: 'seis',   icon: ICONS.number(6),  count: 6 },
+                { en: 'seven', es: 'siete',  icon: ICONS.number(7),  count: 7 },
+                { en: 'eight', es: 'ocho',   icon: ICONS.number(8),  count: 8 },
+                { en: 'nine',  es: 'nueve',  icon: ICONS.number(9),  count: 9 },
+                { en: 'ten',   es: 'diez',   icon: ICONS.number(10), count: 10 },
+            ],
+        },
+        {
+            id: 'colors',
+            icon: '🎨',
+            since: 4,
+            name: { es: 'Los colores', en: 'Colors' },
+            words: [
+                { en: 'green', es: 'verde',   icon: ICONS.swatch('#4caf6d') },
+                { en: 'brown', es: 'marrón',  icon: ICONS.swatch('#8d5524') },
+                { en: 'black', es: 'negro',   icon: ICONS.swatch('#2b2b2b') },
+                { en: 'gray',  es: 'gris',    icon: ICONS.swatch('#9e9e9e') },
+                { en: 'pink',  es: 'rosado',  icon: ICONS.swatch('#ff8fb3') },
+            ],
+        },
     ],
 
     /* a topic's words, each tagged with its topic id and the wave it came in */
