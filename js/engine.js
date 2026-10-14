@@ -115,6 +115,11 @@ const ENGINE = (() => {
 
          count_objects   a number word (has `count`): N emoji to count,
                          pick the number word            — "five sharpeners"
+         is_it           a picture and "Is it a dog?" — answer Yes, it is /
+                         No, it isn't                     — notebook, page 3
+         this_is         a picture and "THIS IS AN ERASER." — tap ✔ or ✘
+                                                          — book test 4
+       is_it and this_is need a countable singular thing (word.frame).
     */
 
     const SPECIAL_CHANCE = 0.4;
@@ -123,7 +128,37 @@ const ENGINE = (() => {
     function specialTypesFor(word){
         const types = [];
         if(typeof word.count === 'number') types.push('count_objects');
+        if(word.frame === true) types.push('is_it', 'this_is');
         return types;
+    }
+
+    function articleFor(word){
+        return word.art || (/^[aeiou]/i.test(word.en) ? 'an' : 'a');
+    }
+
+    // Shows `word`'s picture next to a sentence that is either true
+    // ("Is it a dog?" under a dog) or names a different thing from the same
+    // family (under a cat). A tidy yes/no, with the false one a plausible slip.
+    function buildStatementQuestion(type, word, pool, rng){
+        const others = pool.filter(w => w.frame === true && !sameWord(w, word));
+        const isTrue = others.length === 0 || rng() < 0.5;
+        const claimed = isTrue ? word : pickDistractors(word, others, 1, rng)[0];
+
+        const sentence = type === 'is_it'
+            ? `Is it ${articleFor(claimed)} ${claimed.en}?`
+            : `This is ${articleFor(claimed)} ${claimed.en}.`;
+
+        const options = type === 'is_it'
+            ? [
+                { text: 'Yes, it is',    isCorrect: isTrue },
+                { text: "No, it isn't",  isCorrect: !isTrue },
+            ]
+            : [
+                { mark: 'check', isCorrect: isTrue },
+                { mark: 'cross', isCorrect: !isTrue },
+            ];
+
+        return { type, word, claimed, sentence, options };
     }
 
     function buildCountQuestion(word, pool, rng){
@@ -149,6 +184,10 @@ const ENGINE = (() => {
 
         if(type === 'count_objects'){
             return buildCountQuestion(word, pool, rng);
+        }
+
+        if(type === 'is_it' || type === 'this_is'){
+            return buildStatementQuestion(type, word, pool, rng);
         }
 
         if(type === 'spelling_choice'){

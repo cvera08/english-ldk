@@ -24,6 +24,8 @@ const UI = (() => {
         audio_to_image:  'Escuchá y tocá el dibujo correcto',
         spelling_choice: '¿Cómo se escribe en inglés?',
         count_objects:   'Contá y elegí el número',
+        is_it:           'Mirá el dibujo y contestá',
+        this_is:         '¿Es verdad? Tocá ✔ o ✘',
     };
 
     // types that never make a sound on their own; once she answers, the
@@ -31,7 +33,7 @@ const UI = (() => {
     const SILENT_TYPES = ['image_to_word', 'spelling_choice', 'count_objects'];
 
     // types whose answers are written words, not pictures
-    const TEXT_ANSWER_TYPES = ['image_to_word', 'spelling_choice', 'count_objects'];
+    const TEXT_ANSWER_TYPES = ['image_to_word', 'spelling_choice', 'count_objects', 'is_it'];
 
     const RIGHT_MESSAGES = ['¡Muy bien! ✅', '¡Genial! 🌟', '¡Exacto! 🎉', '¡Perfecto! 💫', '¡Así se hace! 👏'];
     const RETRY_MESSAGES = ['¡Casi! Probá de nuevo 💪', 'No es esa, ¡intentá otra! 🤔', 'Cerca... ¡una más! 🌈'];
@@ -343,6 +345,22 @@ const UI = (() => {
             return;
         }
 
+        // is_it / this_is: the picture, the sentence, and a 🔊 to hear it
+        // read aloud (left out when the sentence names a word the voice mangles)
+        if(q.type === 'is_it' || q.type === 'this_is'){
+            const speakerBtn = canSpeak(q.claimed)
+                ? `<button class="speaker-btn" id="btnSpeak">🔊 Escuchar</button>`
+                : '';
+            els.quizPrompt.innerHTML = `
+                <div class="prompt-icon">${q.word.icon}</div>
+                <div class="prompt-sentence">${q.sentence}</div>
+                ${speakerBtn}`;
+            if(speakerBtn){
+                document.getElementById('btnSpeak').addEventListener('click', () => AUDIO.speak(q.sentence));
+            }
+            return;
+        }
+
         if(q.type === 'word_to_image'){
             const speakerBtn = canSpeak(q.word)
                 ? `<button class="speaker-btn" id="btnSpeak">🔊 Escuchar</button>`
@@ -373,6 +391,11 @@ const UI = (() => {
         const isTextOptions = TEXT_ANSWER_TYPES.includes(q.type);
 
         els.quizOptions.innerHTML = q.options.map((opt, i) => {
+            if(opt.mark){
+                const isCheck = opt.mark === 'check';
+                return `<button class="option option-mark option-mark-${opt.mark}" data-index="${i}"
+                            aria-label="${isCheck ? 'verdadero' : 'falso'}">${isCheck ? '✔' : '✘'}</button>`;
+            }
             if(isTextOptions){
                 return `<button class="option option-text" data-index="${i}">${opt.text.toUpperCase()}</button>`;
             }

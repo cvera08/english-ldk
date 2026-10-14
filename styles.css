@@ -545,6 +545,28 @@ button{
     transform: scale(.97);
 }
 
+.prompt-sentence{
+    font-size: clamp(22px, 6vw, 32px);
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+/* ✔ / ✘ answers: two big side-by-side buttons */
+.quiz-options:has(.option-mark){
+    grid-template-columns: 1fr 1fr;
+}
+
+.option-mark{
+    font-size: 54px;
+    line-height: 1;
+    padding: 14px 0;
+}
+
+.option-mark-check{ color: var(--green); }
+.option-mark-cross{ color: #e0577f; }
+
 .option-text{
     grid-column: 1 / -1;
     font-size: clamp(18px, 4.5vw, 24px);

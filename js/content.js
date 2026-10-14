@@ -6,13 +6,18 @@
  * existing one) and the menu, the "Repaso general" mix, the four
  * question types and the score screen all pick it up automatically.
  *
- * Each word is: { en, es, icon, phrase?, speakAs?, noSpeech?, since? }
+ * Each word is: { en, es, icon, phrase?, speakAs?, noSpeech?, since?, frame?, art?, count? }
  *   en        - the English word the quiz teaches and tests spelling against
  *   es        - the Spanish translation (used for the topic grid, not shown per-question)
  *   icon      - HTML string for the picture: ICONS.emoji('🚗') or ICONS.custom.xxx()
  *   phrase    - optional full sentence spoken instead of `en` (e.g. "I can jump")
  *   speakAs   - optional respelling used only for text-to-speech, when the
  *               real spelling throws the browser's pronunciation off
+ *   frame     - true if it's a countable singular thing that fits "Is it a ...?" /
+ *               "This is a ..." questions; usually set once on the topic, and
+ *               set false on a word that doesn't fit (plurals, "class")
+ *   art       - 'a' or 'an' when the first-letter rule gets it wrong (a uniform)
+ *   count     - the number a number word stands for; enables the counting question
  *   noSpeech  - true if the browser's voice mangles this word badly enough
  *               that it shouldn't be spoken at all — it's skipped for the
  *               listen-only question type and never gets a 🔊 button
@@ -40,6 +45,7 @@ const CONTENT = {
         {
             id: 'school',
             icon: '🎒',
+            frame: true,
             name: { es: 'Útiles y juguetes', en: 'School supplies & toys' },
             words: [
                 { en: 'ball',         es: 'pelota',            icon: ICONS.emoji('⚽') },
@@ -53,7 +59,7 @@ const CONTENT = {
                 { en: 'backpack',     es: 'mochila',           icon: ICONS.emoji('🎒') },
                 { en: 'book',         es: 'libro',             icon: ICONS.emoji('📚') },
                 { en: 'crayon',       es: 'crayón',            icon: ICONS.emoji('🖍️') },
-                { en: 'glue',         es: 'pegamento',         icon: ICONS.custom.glue() },
+                { en: 'glue',         es: 'pegamento',         icon: ICONS.custom.glue(), frame: false }, // uncountable
                 { en: 'train',        es: 'tren',              icon: ICONS.emoji('🚂') },
                 { en: 'ruler',        es: 'regla',             icon: ICONS.emoji('📏') },
                 { en: 'pencil',       es: 'lápiz',             icon: ICONS.emoji('✏️') },
@@ -66,17 +72,19 @@ const CONTENT = {
         {
             id: 'classroom',
             icon: '🏫',
+            frame: true,
             name: { es: 'El salón de clase', en: 'The classroom' },
             words: [
-                { en: 'class',    es: 'salón de clase', icon: ICONS.emoji('🏫') },
+                { en: 'class',    es: 'salón de clase', icon: ICONS.emoji('🏫'), frame: false },
                 { en: 'computer', es: 'computadora',    icon: ICONS.emoji('💻') },
                 { en: 'teacher',  es: 'maestra',        icon: ICONS.emoji('👩‍🏫') },
-                { en: 'uniform',  es: 'uniforme',       icon: ICONS.custom.uniform() },
+                { en: 'uniform',  es: 'uniforme',       icon: ICONS.custom.uniform(), art: 'a' },
             ],
         },
         {
             id: 'furniture',
             icon: '🛋️',
+            frame: true,
             name: { es: 'Los muebles', en: 'Furniture' },
             words: [
                 { en: 'chair',     es: 'silla',    icon: ICONS.emoji('🪑') },
@@ -148,12 +156,13 @@ const CONTENT = {
         {
             id: 'fruits',
             icon: '🍎',
+            frame: true,
             since: 4,
             name: { es: 'Las frutas', en: 'Fruits' },
             words: [
                 { en: 'apple',      es: 'manzana',  icon: ICONS.emoji('🍎') },
                 { en: 'banana',     es: 'banana',   icon: ICONS.emoji('🍌') },
-                { en: 'mangoes',    es: 'mango',    icon: ICONS.emoji('🥭') }, // the worksheet says MANGOES, over one mango
+                { en: 'mangoes',    es: 'mango',    icon: ICONS.emoji('🥭'), frame: false }, // the worksheet says MANGOES, over one mango
                 { en: 'orange',     es: 'naranja',  icon: ICONS.emoji('🍊') },
                 { en: 'pear',       es: 'pera',     icon: ICONS.emoji('🍐') },
                 { en: 'strawberry', es: 'frutilla', icon: ICONS.emoji('🍓') },
@@ -182,6 +191,7 @@ const CONTENT = {
         {
             id: 'pets',
             icon: '🐶',
+            frame: true,
             since: 4,
             name: { es: 'Las mascotas', en: 'Pets' },
             words: [
@@ -198,6 +208,7 @@ const CONTENT = {
         {
             id: 'house',
             icon: '🏠',
+            frame: true,
             since: 4,
             name: { es: 'La casa', en: 'House' },
             words: [
@@ -207,7 +218,7 @@ const CONTENT = {
                 { en: 'clock',    es: 'reloj',    icon: ICONS.emoji('⏰') },
                 { en: 'mirror',   es: 'espejo',   icon: ICONS.emoji('🪞') },
                 { en: 'picture',  es: 'cuadro',   icon: ICONS.emoji('🖼️') },
-                { en: 'pajamas',  es: 'pijama',   icon: ICONS.custom.pajamas() },
+                { en: 'pajamas',  es: 'pijama',   icon: ICONS.custom.pajamas(), frame: false },
                 { en: 'pillow',   es: 'almohada', icon: ICONS.custom.pillow() },
             ],
         },
@@ -287,6 +298,7 @@ const CONTENT = {
             ...word,
             topicId: topic.id,
             since: word.since ?? topic.since ?? CONTENT.DEFAULT_WAVE,
+            frame: word.frame ?? topic.frame ?? false,
         }));
     },
 
