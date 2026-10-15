@@ -138,6 +138,20 @@ button{
     font-size: 22px;
 }
 
+/* "what costs her most": quieter than the two gradient cards above it */
+.card-weak{
+    width: 100%;
+    margin-top: 12px;
+    background: var(--orange-soft);
+    border: 2px solid var(--orange);
+    color: #a35a1a;
+    padding: 16px 18px;
+}
+
+.card-weak .card-sub{
+    color: #b87430;
+}
+
 .group-title{
     color: var(--purple);
     font-size: 17px;

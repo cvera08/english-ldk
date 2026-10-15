@@ -42,7 +42,7 @@ const UI = (() => {
     function cacheEls(){
         [
             'screen-home', 'screen-quiz', 'screen-end',
-            'topicGrid', 'countOptions', 'btnRepaso', 'btnNew', 'newBadge', 'newSub', 'btnBack',
+            'topicGrid', 'countOptions', 'btnRepaso', 'btnNew', 'newBadge', 'newSub', 'btnWeak', 'weakSub', 'btnBack',
             'quizProgressText', 'quizProgressFill',
             'quizInstruction', 'quizPrompt', 'quizOptions', 'quizFeedback',
             'endStars', 'endTitle', 'endScore', 'endBest', 'btnPracticeMissed',
@@ -83,12 +83,21 @@ const UI = (() => {
     function wordsFor(id){
         if(id === 'all') return CONTENT.allWords();
         if(id === 'new') return CONTENT.newWords();
+        if(id === 'weak') return weakWordObjects();
         return CONTENT.wordsOf(CONTENT.topicById(id));
+    }
+
+    // the words she keeps missing, as full word objects (anything no longer
+    // in the content is ignored)
+    function weakWordObjects(){
+        const weak = new Set(STORAGE.weakWords());
+        return CONTENT.allWords().filter(w => weak.has(w.en));
     }
 
     function labelFor(id){
         if(id === 'all') return 'Repaso general';
         if(id === 'new') return 'Lo nuevo';
+        if(id === 'weak') return 'Lo que más le cuesta';
         return CONTENT.topicById(id).name.es;
     }
 
@@ -154,10 +163,22 @@ const UI = (() => {
         els.newBadge.innerHTML = scoreBadgeHTML(STORAGE.getBest(scoreKey('new')));
     }
 
+    // only offered once a few words are on the list — fewer would just
+    // repeat the same two or three over and over
+    const MIN_WEAK_WORDS = 3;
+
+    function renderWeakCard(){
+        const count = weakWordObjects().length;
+        els.btnWeak.classList.toggle('hidden', count < MIN_WEAK_WORDS);
+        if(count < MIN_WEAK_WORDS) return;
+        els.weakSub.textContent = `${count} palabras para reforzar`;
+    }
+
     function renderHome(){
         renderTopicGrid();
         renderRepasoBadge();
         renderNewCard();
+        renderWeakCard();
     }
 
     /* ---------------- scores modal ---------------- */
@@ -260,11 +281,20 @@ const UI = (() => {
         window.speechSynthesis && window.speechSynthesis.cancel();
 
         const words = wordsFor(topicId);
+        if(words.length === 0){   // e.g. the weak list emptied out since the home screen was drawn
+            goHome();
+            return;
+        }
+
+        // a short list shouldn't be drilled to death: at most 2 passes
+        // over the weak words, 4 over an ordinary small topic
+        const passes = topicId === 'weak' ? 2 : 4;
 
         state.session = ENGINE.buildSession({
             words,
-            count: Math.min(state.questionCount, words.length * 4),
+            count: Math.min(state.questionCount, words.length * passes),
             types: allowedTypes(),
+            pool: topicId === 'weak' ? CONTENT.allWords() : undefined,
         });
         state.index = 0;
         state.correctFirstTry = 0;
@@ -429,6 +459,8 @@ const UI = (() => {
             els.quizFeedback.textContent = pick(RIGHT_MESSAGES);
             els.quizFeedback.className = 'quiz-feedback feedback-good';
 
+            STORAGE.recordWord(q.word.en, !state.attemptedWrong);
+
             if(state.attemptedWrong){
                 const already = state.missedWords.some(
                     w => w.en === q.word.en && w.topicId === q.word.topicId
@@ -491,7 +523,7 @@ const UI = (() => {
 
         // a review round is just practice — it never touches the topic's
         // recorded best score, per Carlos: "que el puntaje quede fijo"
-        if(state.isReview){
+        if(state.isReview || state.topicId === 'weak'){
             els.endBest.textContent = '';
         }else{
             const isNewBest = STORAGE.saveBest(scoreKey(state.topicId), stars, state.correctFirstTry, total);
@@ -540,6 +572,7 @@ const UI = (() => {
 
         els.btnRepaso.addEventListener('click', () => startQuiz('all'));
         els.btnNew.addEventListener('click', () => startQuiz('new'));
+        els.btnWeak.addEventListener('click', () => startQuiz('weak'));
         els.btnBack.addEventListener('click', goHome);
         els.btnMenu.addEventListener('click', goHome);
         els.btnRetry.addEventListener('click', () => startQuiz(state.topicId));
