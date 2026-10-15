@@ -560,6 +560,7 @@ const UI = (() => {
 
     function init(){
         cacheEls();
+        document.getElementById('appVersion').textContent = CONTENT.VERSION;
         renderHome();
         wireCountPicker();
         wireResetScores();

@@ -299,6 +299,13 @@ button{
     padding: 8px;
 }
 
+.app-version{
+    text-align: center;
+    font-size: 11px;
+    color: #b9aebb;
+    margin: 4px 0 0;
+}
+
 .reset-link.reset-armed{
     color: var(--orange);
     font-weight: bold;

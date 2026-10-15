@@ -39,6 +39,10 @@
 
 const CONTENT = {
 
+    // shown in small print on the home screen, so you can tell at a glance
+    // whether a device has picked up the latest push (bump it when you push)
+    VERSION: 'v4.1 · 15 oct 2026',
+
     DEFAULT_WAVE: 3,
 
     TOPICS: [
