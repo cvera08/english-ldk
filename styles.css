@@ -553,6 +553,33 @@ button{
     letter-spacing: .5px;
 }
 
+/* "I have..." panel for the do-you-have question */
+.have-panel{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: var(--blue-soft);
+    border-radius: 18px;
+    padding: 10px 16px 12px;
+}
+
+.have-label{
+    font-size: 15px;
+    font-weight: bold;
+    color: #1f5f96;
+    letter-spacing: 1px;
+}
+
+.have-icons{
+    display: flex;
+    gap: 10px;
+}
+
+.have-icon .icon-emoji{
+    font-size: 56px;
+}
+
 /* ✔ / ✘ answers: two big side-by-side buttons */
 .quiz-options:has(.option-mark){
     grid-template-columns: 1fr 1fr;

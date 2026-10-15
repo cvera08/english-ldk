@@ -120,6 +120,9 @@ const ENGINE = (() => {
          this_is         a picture and "THIS IS AN ERASER." — tap ✔ or ✘
                                                           — book test 4
        is_it and this_is need a countable singular thing (word.frame).
+         do_you_have     pets only: "I have..." with a few pets pictured, then
+                         "Do you have a spider?" — Yes, I do / No, I don't
+                                                          — book test 3
     */
 
     const SPECIAL_CHANCE = 0.4;
@@ -129,7 +132,34 @@ const ENGINE = (() => {
         const types = [];
         if(typeof word.count === 'number') types.push('count_objects');
         if(word.frame === true) types.push('is_it', 'this_is');
+        if(word.frame === true && word.topicId === 'pets') types.push('do_you_have');
         return types;
+    }
+
+    // "I have..." shows a few pets; the question asks about one that is
+    // either in the picture (Yes, I do) or isn't (No, I don't)
+    function buildDoYouHaveQuestion(word, pool, rng){
+        const others = shuffle(
+            pool.filter(w => w.topicId === 'pets' && w.frame === true && !sameWord(w, word)),
+            rng
+        );
+        // not enough pets in the pool to fill a panel — ask the plain version
+        if(others.length < 3) return buildStatementQuestion('is_it', word, pool, rng);
+
+        const hasIt = rng() < 0.5;
+        const panel = shuffle(hasIt ? [word, ...others.slice(0, 2)] : others.slice(0, 3), rng);
+
+        return {
+            type: 'do_you_have',
+            word,
+            claimed: word,
+            panel,
+            sentence: `Do you have ${articleFor(word)} ${word.en}?`,
+            options: [
+                { text: 'Yes, I do',     isCorrect: hasIt },
+                { text: "No, I don't",   isCorrect: !hasIt },
+            ],
+        };
     }
 
     function articleFor(word){
@@ -188,6 +218,10 @@ const ENGINE = (() => {
 
         if(type === 'is_it' || type === 'this_is'){
             return buildStatementQuestion(type, word, pool, rng);
+        }
+
+        if(type === 'do_you_have'){
+            return buildDoYouHaveQuestion(word, pool, rng);
         }
 
         if(type === 'spelling_choice'){

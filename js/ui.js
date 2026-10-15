@@ -26,6 +26,7 @@ const UI = (() => {
         count_objects:   'Contá y elegí el número',
         is_it:           'Mirá el dibujo y contestá',
         this_is:         '¿Es verdad? Tocá ✔ o ✘',
+        do_you_have:     'Mirá lo que tiene y contestá',
     };
 
     // types that never make a sound on their own; once she answers, the
@@ -33,7 +34,7 @@ const UI = (() => {
     const SILENT_TYPES = ['image_to_word', 'spelling_choice', 'count_objects'];
 
     // types whose answers are written words, not pictures
-    const TEXT_ANSWER_TYPES = ['image_to_word', 'spelling_choice', 'count_objects', 'is_it'];
+    const TEXT_ANSWER_TYPES = ['image_to_word', 'spelling_choice', 'count_objects', 'is_it', 'do_you_have'];
 
     const RIGHT_MESSAGES = ['¡Muy bien! ✅', '¡Genial! 🌟', '¡Exacto! 🎉', '¡Perfecto! 💫', '¡Así se hace! 👏'];
     const RETRY_MESSAGES = ['¡Casi! Probá de nuevo 💪', 'No es esa, ¡intentá otra! 🤔', 'Cerca... ¡una más! 🌈'];
@@ -345,14 +346,21 @@ const UI = (() => {
             return;
         }
 
-        // is_it / this_is: the picture, the sentence, and a 🔊 to hear it
-        // read aloud (left out when the sentence names a word the voice mangles)
-        if(q.type === 'is_it' || q.type === 'this_is'){
+        // is_it / this_is / do_you_have: a picture (or the "I have..." panel),
+        // the sentence, and a 🔊 to hear it read aloud (left out when the
+        // sentence names a word the voice mangles)
+        if(q.type === 'is_it' || q.type === 'this_is' || q.type === 'do_you_have'){
             const speakerBtn = canSpeak(q.claimed)
                 ? `<button class="speaker-btn" id="btnSpeak">🔊 Escuchar</button>`
                 : '';
+            const picture = q.type === 'do_you_have'
+                ? `<div class="have-panel">
+                       <span class="have-label">I HAVE…</span>
+                       <div class="have-icons">${q.panel.map(w => `<span class="have-icon">${w.icon}</span>`).join('')}</div>
+                   </div>`
+                : `<div class="prompt-icon">${q.word.icon}</div>`;
             els.quizPrompt.innerHTML = `
-                <div class="prompt-icon">${q.word.icon}</div>
+                ${picture}
                 <div class="prompt-sentence">${q.sentence}</div>
                 ${speakerBtn}`;
             if(speakerBtn){
