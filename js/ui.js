@@ -47,7 +47,7 @@ const UI = (() => {
             'quizInstruction', 'quizPrompt', 'quizOptions', 'quizFeedback',
             'endStars', 'endTitle', 'endScore', 'endBest', 'btnPracticeMissed',
             'btnRetry', 'btnMenu', 'confetti', 'btnResetScores',
-            'btnViewScores', 'scoresBackdrop', 'scoresList', 'btnCloseScores',
+            'btnViewScores', 'scoresBackdrop', 'scoresList', 'btnCloseScores', 'btnUpdate',
         ].forEach(id => els[id] = document.getElementById(id));
     }
 
@@ -613,9 +613,26 @@ const UI = (() => {
         showScreen('home');
     }
 
+    // There is no refresh button in a Home Screen app. Loading the page again
+    // under a fresh URL skips the 10-minute file cache, and because every
+    // script URL carries the build number, a newer build brings all of its
+    // files with it. Saved scores live in localStorage and are untouched.
+    function wireUpdate(){
+        els.btnUpdate.addEventListener('click', () => {
+            if(navigator.onLine === false){
+                els.btnUpdate.textContent = 'sin conexión';
+                setTimeout(() => { els.btnUpdate.textContent = 'buscar actualización'; }, 2500);
+                return;
+            }
+            els.btnUpdate.textContent = 'buscando…';
+            location.replace(`${location.pathname}?r=${Date.now()}`);
+        });
+    }
+
     function init(){
         cacheEls();
         document.getElementById('appVersion').textContent = CONTENT.VERSION;
+        wireUpdate();
         renderHome();
         wireCountPicker();
         wireResetScores();

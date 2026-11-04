@@ -317,6 +317,15 @@ button{
     margin: 4px 0 0;
 }
 
+.link-btn{
+    border: none;
+    background: none;
+    padding: 8px 4px;
+    font-size: 11px;
+    color: #b9aebb;
+    text-decoration: underline;
+}
+
 .reset-link.reset-armed{
     color: var(--orange);
     font-weight: bold;

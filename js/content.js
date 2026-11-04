@@ -40,9 +40,15 @@
 
 const CONTENT = {
 
-    // shown in small print on the home screen, so you can tell at a glance
-    // whether a device has picked up the latest push (bump it when you push)
-    VERSION: 'v4.1 · 15 oct 2026',
+    // The build number is the ?v= on every script and stylesheet in
+    // index.html (tests/check.js keeps the two equal). GitHub Pages lets a
+    // browser keep a file for 10 minutes; with versioned URLs a page and its
+    // scripts always come from the same release, never half old, half new.
+    // Bump BUILD and RELEASED on every push that changes the app — the version
+    // shows in small print on the home screen, to see what a device has.
+    BUILD: '5.0',
+    RELEASED: '3 nov 2026',
+    get VERSION(){ return `v${this.BUILD} · ${this.RELEASED}`; },
 
     DEFAULT_WAVE: 3,
 

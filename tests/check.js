@@ -212,6 +212,16 @@ section('page wiring (index.html <-> ui.js)');
     const used = new Set([...ui.matchAll(/\bels\.([A-Za-z]\w*)/g)].map(m => m[1]));
     for(const name of used) check(cached.includes(name), `ui.js uses els.${name} but never caches it`);
     console.log(`  ${refs.length} files, ${cached.length} cached elements, ${direct.length} direct lookups: all present`);
+
+    // the build number: shown on screen, and stamped on every asset URL so a
+    // browser can never pair a new index.html with a cached old script
+    check(/^\d+\.\d+$/.test(CONTENT.BUILD), `BUILD looks like 5.0 (got ${CONTENT.BUILD})`);
+    check(CONTENT.RELEASED && CONTENT.VERSION === `v${CONTENT.BUILD} · ${CONTENT.RELEASED}`, `VERSION is built from BUILD and RELEASED (${CONTENT.VERSION})`);
+    const assets = [...html.matchAll(/<(?:script src|link rel="stylesheet" href)="([^"]+)"/g)].map(m => m[1]);
+    check(assets.length >= 9, `found the page's scripts and stylesheet (${assets.length})`);
+    for(const a of assets){
+        check(a.endsWith(`?v=${CONTENT.BUILD}`), `${a} should end in ?v=${CONTENT.BUILD} — bump the ?v= in index.html together with BUILD`);
+    }
 }
 
 /* ---------------------------------------------------------------- sessions */
