@@ -19,13 +19,21 @@ bar, like a real app.
 - **Source material**: the school's own exam (`INGLES L 2.pdf`), the review
   sheet her mom put together (`REPASO PRIMERO.pdf`) and, from October 2026,
   photos of mom's notebook and of the photocopiable tests of the course book
-  (*GO! International 1*, Richmond/Santillana). Exams are cumulative — each one
-  can bring back everything before it — so the app keeps one bank of words and
-  leans on a "Repaso general" mode that mixes every topic.
-- **Waves, and "Lo nuevo".** Every topic or word can say which wave it was added
-  in (`since: 4`). The newest wave gets its own "Lo nuevo" quiz across all topics,
-  a NUEVO chip on all-new topics, and a "+N nuevas" chip on older topics that
-  grew — so new material stays easy to spot even when it's mixed into old topics.
+  (*GO! International 1*, Richmond/Santillana), and in November the school's
+  five-page picture review sheet. Exams are cumulative — each one can bring back
+  everything before it — so the app keeps **one bank of words**, never starts
+  over, and leans on a "Repaso general" mode that mixes every topic.
+- **Stages, and "Lo nuevo".** Every topic or word can say which wave it was
+  added in (`since: 4`); the waves in order are shown as stages, numbered with a
+  plant that grows: Etapa 1 🌱 (up to the third exam), Etapa 2 🌿 (October),
+  Etapa 3 🌳 (the November sheet). The newest stage is the big "Lo nuevo" card
+  and puts a NUEVO / "+N nuevas" chip on the topics it touched; older stages stay
+  one tap away under "Por etapas"; topics are grouped under the stage they
+  first appeared in. Each stage keeps its own best score. New material stays
+  easy to spot even when it grows an old topic (the colors did exactly that).
+- **Words that look the same are not always the same word.** An *orange* is a
+  fruit and a color. The bank keeps both (one spelling, two pictures) and the
+  engine never offers one as the other's wrong answer.
 - **A memory of what costs her.** Every answer updates a per-word record in the
   browser. Words she misses and hasn't yet got right twice in a row first try
   show up under "Lo que más le cuesta"; the end-of-round "Practicar lo que fallé"
@@ -60,6 +68,9 @@ js/storage.js     localStorage: best score per topic, per-word miss memory
 js/confetti.js    the end-screen celebration
 js/ui.js          the only file that touches the DOM
 js/main.js        entry point
+
+tests/check.js    the sanity checks (node tests/check.js)
+manifest.json     home-screen metadata; favicon.svg, apple-touch-icon.png, icon-512.png
 ```
 
 ### Adding a new exam's vocabulary later
@@ -80,9 +91,11 @@ Append words to an existing topic, or a whole new topic object, in
 ```
 
 For the next batch, give the new topics (or single words inside old topics)
-`since: 5`, and bump `CONTENT.VERSION` so you can see on the device that it
-picked up the push. That's the whole change — the menu, "Repaso general", "Lo
-nuevo", the question types and the score screen all pick it up automatically.
+`since: 6`. It becomes Etapa 4 by itself (the names live in `CONTENT.stage()` if
+you'd rather call them trimesters or phases), "Lo nuevo" moves to it, and the
+stage it replaces drops into "Por etapas" with its record intact. The menu,
+"Repaso general", the question types and the score screen all pick it up
+automatically. Before pushing, see [Releasing](#releasing).
 
 Useful word flags (documented at the top of `content.js`): `frame: true` lets a
 countable singular thing appear in "Is it a …?" / "This is a …" sentences,
@@ -92,16 +105,25 @@ icon to `ICONS.custom` in `js/icons.js` instead (see `yogurt`, `rug`, `pillow`
 for the pattern) — the pictures here are our own drawings, not the course
 book's, since the site is public.
 
-Quick sanity check, no browser and nothing to install:
+## Tests
+
+No browser and nothing to install:
 
 ```bash
 node tests/check.js
 ```
 
-It builds a few hundred sessions for every topic (and the Repaso / Lo nuevo
-mixes) and checks that every question is well formed: exactly one correct
-option, no duplicate options, true sentences marked true, the right article,
-counting questions that count what they say.
+It checks the word bank (unique pictures, homonyms), the stages, `storage.js`
+against an in-memory `localStorage` (best scores, the per-word memory, damaged
+or unavailable storage), the wiring between `index.html` and `ui.js` (missing
+files, load order, every id the JS touches), the build number, and builds a few
+hundred sessions per topic, stage and mix, asserting every question is well
+formed: exactly one correct option, no duplicates, true sentences marked true,
+the right article, counting questions that count what they say.
+
+What it can't see is the page itself. Before a release, play the app in a real
+browser — ideally WebKit, the engine of Safari on iPhone — at a phone width
+(320 and 375 px): every mode to the end, the review round, the scores and reset.
 
 ## Running it locally
 
@@ -119,6 +141,24 @@ from disk — plain scripts, no build step, nothing to install.
 Plain GitHub Pages, serving the `master` branch straight from its root — no
 build step, no workflow file, so there's nothing to fail. Every push to
 `master` is live within a minute or two.
+
+### Releasing
+
+She uses it live on a phone, so test first and push once.
+
+1. `node tests/check.js`, then play it in a browser (see Tests).
+2. Bump `BUILD` and `RELEASED` in `js/content.js`, and the `?v=` on the
+   stylesheet and every script in `index.html`, to the same number
+   (`tests/check.js` fails if they disagree).
+3. Push to `master`. The Pages build takes about a minute.
+
+Why the `?v=`: GitHub Pages lets a browser keep each file for 10 minutes, and a
+Home Screen app has no refresh button. Because every asset URL carries the build
+number, a page and its scripts always come from the same release. To get a new
+version she closes the app (swipe it away) and opens it again; inside those 10
+minutes the old one can still show, so the version stamp under *Ver puntajes*
+says what the device has, and *buscar actualización* next to it loads the latest
+straight away. Saved scores live in the browser and are untouched either way.
 
 ## Status
 
