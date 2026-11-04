@@ -18,10 +18,10 @@ const ICONS = {
 
     /* ---------- patterns: a rounded swatch showing the pattern itself ---------- */
 
-    _starPoints(cx, cy, r){
+    _starPoints(cx, cy, r, inner = 0.45){
         const pts = [];
         for(let i = 0; i < 10; i++){
-            const radius = i % 2 === 0 ? r : r * 0.45;
+            const radius = i % 2 === 0 ? r : r * inner;
             const angle = -Math.PI / 2 + i * Math.PI / 5;
             pts.push(`${(cx + radius * Math.cos(angle)).toFixed(1)},${(cy + radius * Math.sin(angle)).toFixed(1)}`);
         }
@@ -71,6 +71,44 @@ const ICONS = {
             <text x="50" y="${y}" font-size="${size}" font-weight="bold" text-anchor="middle"
                   fill="#ff6fb5" font-family="Arial, Helvetica, sans-serif">${n}</text>
         </svg>`;
+    },
+
+    // The seven colors on the school's review sheet, each drawn as the little
+    // shape printed next to it there (green ring, pink heart, purple star,
+    // orange bolt, red zigzag, yellow arch, blue block), so what she studied
+    // on paper is what she sees here. Same shapes, drawn from scratch.
+    _colorHex: {
+        blue: '#004aad', green: '#7ed957', orange: '#ff914d', pink: '#ff66c4',
+        purple: '#8c52ff', red: '#ff3131', yellow: '#ffde59',
+    },
+
+    color(name){
+        const hex = ICONS._colorHex[name];
+        const edge = 'rgba(0,0,0,.28)';
+        // filled shapes get a thin darker edge; stroked ones get a wider
+        // translucent stroke drawn underneath, which reads as the same edge
+        const filled = (d) => `<path d="${d}" fill="${hex}" stroke="${edge}" stroke-width="3" stroke-linejoin="round"/>`;
+        const stroked = (el, w) => el('stroke-width="' + (w + 6) + '" stroke="' + edge + '"') + el('stroke-width="' + w + '" stroke="' + hex + '"');
+        let body = '';
+
+        if(name === 'green'){            // a ring
+            body = `<path fill-rule="evenodd" d="M50 9 a41 41 0 1 0 0.01 0 Z M50 33 a17 17 0 1 1 -0.01 0 Z"
+                          fill="${hex}" stroke="${edge}" stroke-width="3"/>`;
+        }else if(name === 'pink'){       // a heart
+            body = filled('M50 88 C8 58 8 22 30 18 C41 16 50 24 50 32 C50 24 59 16 70 18 C92 22 92 58 50 88 Z');
+        }else if(name === 'purple'){     // a star
+            body = `<polygon points="${ICONS._starPoints(50, 55, 44, 0.5)}" fill="${hex}" stroke="${edge}" stroke-width="3" stroke-linejoin="round"/>`;
+        }else if(name === 'orange'){     // a lightning bolt
+            body = `<polygon points="56,6 20,56 44,56 34,94 80,38 54,38 70,6" fill="${hex}" stroke="${edge}" stroke-width="3" stroke-linejoin="round"/>`;
+        }else if(name === 'red'){        // a zigzag
+            body = stroked(a => `<polyline points="10,68 26,34 42,66 58,34 74,66 90,34" fill="none" stroke-linejoin="miter" stroke-miterlimit="6" ${a}/>`, 11);
+        }else if(name === 'yellow'){     // an arch
+            body = stroked(a => `<path d="M24 76 A26 26 0 0 1 76 76" fill="none" stroke-linecap="round" ${a}/>`, 20);
+        }else if(name === 'blue'){       // a slanted block, like an N
+            body = filled('M10 84 L16 18 L36 18 L62 56 L66 18 L90 18 L84 84 L64 84 L38 44 L34 84 Z');
+        }
+
+        return `<svg viewBox="0 0 100 100" class="icon-svg">${body}</svg>`;
     },
 
     // a plain round blob of one color, with a little shine

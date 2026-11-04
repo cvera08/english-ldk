@@ -27,13 +27,15 @@ section('word bank');
     for(const t of CONTENT.TOPICS){
         check(!ids.has(t.id), 'duplicate topic id ' + t.id);
         ids.add(t.id);
-        const ens = new Set();
+        const ens = new Set(), pics = new Map();
         for(const w of t.words){
             check(w.en && w.es, `${t.id}: word missing en/es: ${JSON.stringify(w.en)}`);
             check(w.icon && w.icon.length >= 5, `${t.id}/${w.en}: empty icon`);
             check(!/<text[^>]*>[a-z]{3,}/i.test(w.icon), `${t.id}/${w.en}: icon contains English-looking text`);
             check(!ens.has(w.en), `${t.id}: duplicate word ${w.en}`);
             ens.add(w.en);
+            check(!pics.has(w.icon), `${t.id}: ${w.en} and ${pics.get(w.icon)} share the same picture`);
+            pics.set(w.icon, w.en);
         }
     }
     console.log(`  ${CONTENT.TOPICS.length} topics, ${CONTENT.allWords().length} words`);
