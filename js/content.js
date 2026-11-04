@@ -307,15 +307,22 @@ const CONTENT = {
     },
 
     /* every word from every topic, flattened — used by "Repaso general"
-       and by the distractor picker. A word that appears in two topics
-       (e.g. fish as food and as a pet) is listed once, first topic wins. */
+       and by the distractor picker.
+
+       The same word with the same picture in two topics (fish as food and
+       as a pet) is one word, listed once. The same spelling with a different
+       picture is a different word — an orange is a fruit and also a color —
+       and both stay. (The engine never puts two words with one spelling in
+       the same question, so the fruit and the color can't be each other's
+       wrong answer.) */
     allWords(){
         const seen = new Set();
         return CONTENT.TOPICS
             .flatMap(topic => CONTENT.wordsOf(topic))
             .filter(word => {
-                if(seen.has(word.en)) return false;
-                seen.add(word.en);
+                const key = `${word.en}|${word.icon}`;
+                if(seen.has(key)) return false;
+                seen.add(key);
                 return true;
             });
     },
