@@ -42,7 +42,7 @@ const UI = (() => {
     function cacheEls(){
         [
             'screen-home', 'screen-quiz', 'screen-end',
-            'topicGrid', 'countOptions', 'btnRepaso', 'btnNew', 'newBadge', 'newSub', 'btnWeak', 'weakSub', 'btnBack',
+            'topicGrid', 'countOptions', 'btnRepaso', 'btnNew', 'newBadge', 'newSub', 'btnWeak', 'weakSub', 'stageRow', 'btnBack',
             'quizProgressText', 'quizProgressFill',
             'quizInstruction', 'quizPrompt', 'quizOptions', 'quizFeedback',
             'endStars', 'endTitle', 'endScore', 'endBest', 'btnPracticeMissed',
@@ -74,16 +74,23 @@ const UI = (() => {
             <div class="card-badge-frac">${best.correct}/${best.total}</div>`;
     }
 
-    // "lo nuevo" is a moving target (wave 4 today, wave 5 with the next
-    // batch), so its best score is kept per wave instead of under one key
+    // A stage is played under the id "wave:N" (N = the `since` number it
+    // stands for). "Lo nuevo" is just the newest stage, so it needs no id of
+    // its own and keeps working when the next batch makes a newer one.
+    const waveId = (wave) => `wave:${wave}`;
+    const isWaveId = (id) => id.startsWith('wave:');
+    const waveOf = (id) => Number(id.slice(5));
+
+    // The record key of a stage is the one "Lo nuevo" already used for it
+    // ("new-w4"), so a best score saved before stages existed is still there.
     function scoreKey(id){
-        return id === 'new' ? `new-w${CONTENT.latestWave()}` : id;
+        return isWaveId(id) ? `new-w${waveOf(id)}` : id;
     }
 
     function wordsFor(id){
         if(id === 'all') return CONTENT.allWords();
-        if(id === 'new') return CONTENT.newWords();
         if(id === 'weak') return weakWordObjects();
+        if(isWaveId(id)) return CONTENT.wordsOfWave(waveOf(id));
         return CONTENT.wordsOf(CONTENT.topicById(id));
     }
 
@@ -96,10 +103,15 @@ const UI = (() => {
 
     function labelFor(id){
         if(id === 'all') return 'Repaso general';
-        if(id === 'new') return 'Lo nuevo';
         if(id === 'weak') return 'Lo que más le cuesta';
+        if(isWaveId(id)){
+            const stage = CONTENT.stage(waveOf(id));
+            return `${stage.emoji} ${stage.name}`;
+        }
         return CONTENT.topicById(id).name.es;
     }
+
+    const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
     /* ---------------- home screen ---------------- */
 
@@ -128,21 +140,26 @@ const UI = (() => {
             </button>`;
     }
 
-    // topics made entirely of new words go first, under their own heading;
-    // with nothing new yet the grid is just the plain list it always was
+    // Topics are grouped by the stage they first appeared in, newest first,
+    // each under its plant. (A topic keeps its home stage even when a later
+    // stage adds words to it — that shows up as its "+N nuevas" chip.) With a
+    // single stage there is nothing to tell apart and it's the plain list.
     function renderTopicGrid(){
-        const latest = CONTENT.latestWave();
-        const isAllNew = (t) => latest > CONTENT.DEFAULT_WAVE &&
-            CONTENT.wordsOf(t).every(w => w.since === latest);
+        const groups = new Map();
+        for(const topic of CONTENT.TOPICS){
+            const wave = CONTENT.introWave(topic);
+            if(!groups.has(wave)) groups.set(wave, []);
+            groups.get(wave).push(topic);
+        }
+        const grid = (list) => `<div class="topic-grid">${list.map(topicCardHTML).join('')}</div>`;
+        const waves = [...groups.keys()].sort((a, b) => b - a);
 
-        const fresh = CONTENT.TOPICS.filter(isAllNew);
-        const seen  = CONTENT.TOPICS.filter(t => !isAllNew(t));
-        const grid  = (list) => `<div class="topic-grid">${list.map(topicCardHTML).join('')}</div>`;
-
-        els.topicGrid.innerHTML = fresh.length
-            ? `<h3 class="group-title">🆕 Temas nuevos</h3>${grid(fresh)}
-               <h3 class="group-title">📚 Ya vistos</h3>${grid(seen)}`
-            : grid(seen);
+        els.topicGrid.innerHTML = waves.length > 1
+            ? waves.map(wave => {
+                const stage = CONTENT.stage(wave);
+                return `<h3 class="group-title">${stage.emoji} ${stage.name}</h3>${grid(groups.get(wave))}`;
+            }).join('')
+            : grid(CONTENT.TOPICS);
 
         els.topicGrid.querySelectorAll('[data-topic]').forEach(btn => {
             btn.addEventListener('click', () => startQuiz(btn.dataset.topic));
@@ -154,13 +171,44 @@ const UI = (() => {
         document.getElementById('repasoBadge').innerHTML = scoreBadgeHTML(best);
     }
 
-    // the "Lo nuevo" card only exists while there's something new
+    // The big "Lo nuevo" card is the newest stage, and only exists once there
+    // is more than one. Its subtitle says which stage that is.
     function renderNewCard(){
         const words = CONTENT.newWords();
         els.btnNew.classList.toggle('hidden', words.length === 0);
         if(words.length === 0) return;
-        els.newSub.textContent = `${words.length} palabras nuevas, de todos los temas`;
-        els.newBadge.innerHTML = scoreBadgeHTML(STORAGE.getBest(scoreKey('new')));
+
+        const latest = CONTENT.latestWave();
+        const stage = CONTENT.stage(latest);
+        els.newSub.textContent = `${stage.emoji} ${stage.name} · ${plural(words.length, 'palabra nueva', 'palabras nuevas')}`;
+        els.newBadge.innerHTML = scoreBadgeHTML(STORAGE.getBest(scoreKey(waveId(latest))));
+    }
+
+    function stageCardHTML(wave){
+        const stage = CONTENT.stage(wave);
+        const count = CONTENT.wordsOfWave(wave).length;
+        return `
+            <button class="card stage-card" data-wave="${wave}">
+                <div class="card-badge">${scoreBadgeHTML(STORAGE.getBest(scoreKey(waveId(wave))))}</div>
+                <span class="card-icon">${stage.emoji}</span>
+                <span class="card-title">${stage.name}</span>
+                <span class="card-sub">${plural(count, 'palabra', 'palabras')}</span>
+            </button>`;
+    }
+
+    // every stage but the newest (that one is the "Lo nuevo" card), newest first
+    function renderStageRow(){
+        const older = CONTENT.waves().slice(0, -1).reverse();
+        if(!CONTENT.hasStages() || older.length === 0){
+            els.stageRow.innerHTML = '';
+            return;
+        }
+        els.stageRow.innerHTML = `
+            <h3 class="group-title">🕒 Por etapas</h3>
+            <div class="stage-grid">${older.map(stageCardHTML).join('')}</div>`;
+        els.stageRow.querySelectorAll('[data-wave]').forEach(btn => {
+            btn.addEventListener('click', () => startQuiz(waveId(Number(btn.dataset.wave))));
+        });
     }
 
     // only offered once a few words are on the list — fewer would just
@@ -179,16 +227,21 @@ const UI = (() => {
         renderRepasoBadge();
         renderNewCard();
         renderWeakCard();
+        renderStageRow();
     }
 
     /* ---------------- scores modal ---------------- */
 
-    // every "game" that can have a best score: repaso general, lo nuevo
-    // (while there is any) and each topic
+    // every "game" that can have a best score: repaso general, each stage
+    // (newest first, the newest called "Lo nuevo") and each topic
     function scoreEntries(){
+        const stages = CONTENT.hasStages() ? CONTENT.waves().slice().reverse() : [];
         return [
             { id: 'all', icon: '🎯', name: 'Repaso general' },
-            ...(CONTENT.newWords().length ? [{ id: 'new', icon: '🆕', name: 'Lo nuevo' }] : []),
+            ...stages.map((wave, i) => {
+                const stage = CONTENT.stage(wave);
+                return { id: waveId(wave), icon: stage.emoji, name: i === 0 ? `Lo nuevo · ${stage.name}` : stage.name };
+            }),
             ...CONTENT.TOPICS.map(t => ({ id: t.id, icon: t.icon, name: t.name.es })),
         ];
     }
@@ -294,7 +347,9 @@ const UI = (() => {
             words,
             count: Math.min(state.questionCount, words.length * passes),
             types: allowedTypes(),
-            pool: topicId === 'weak' ? CONTENT.allWords() : undefined,
+            // a short list (the weak words, or a stage that is only a handful
+            // of words) would run out of wrong answers drawn from itself
+            pool: (topicId === 'weak' || words.length < 8) ? CONTENT.allWords() : undefined,
         });
         state.index = 0;
         state.correctFirstTry = 0;
@@ -572,7 +627,7 @@ const UI = (() => {
         document.addEventListener('pointerdown', AUDIO.unlock, { once: true });
 
         els.btnRepaso.addEventListener('click', () => startQuiz('all'));
-        els.btnNew.addEventListener('click', () => startQuiz('new'));
+        els.btnNew.addEventListener('click', () => startQuiz(waveId(CONTENT.latestWave())));
         els.btnWeak.addEventListener('click', () => startQuiz('weak'));
         els.btnBack.addEventListener('click', goHome);
         els.btnMenu.addEventListener('click', goHome);

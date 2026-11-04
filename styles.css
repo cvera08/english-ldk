@@ -152,6 +152,17 @@ button{
     color: #b87430;
 }
 
+/* the row of older stages: compact cards, two across even on a small phone */
+.stage-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.stage-card .card-icon{
+    font-size: 36px;
+}
+
 .group-title{
     color: var(--purple);
     font-size: 17px;
@@ -284,7 +295,7 @@ button{
 
 .topic-grid{
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 12px;
 }
 

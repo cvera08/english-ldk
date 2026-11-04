@@ -23,12 +23,13 @@
  *               listen-only question type and never gets a 🔊 button
  *               (e.g. "cupboard": no respelling we tried sounded right)
  *
- * Waves: exams are cumulative, so everything lives in one bank, and each
+ * Stages: exams are cumulative, so everything lives in one bank, and each
  * topic (or a single word) can carry `since: N` — the wave it was added in.
- * Anything without it is wave 3, i.e. everything up to the third exam. The
- * highest wave present is "lo nuevo": it gets its own quiz mode, a NUEVO chip
- * on its topics, and a "+N nuevas" chip on older topics that grew. To add the
- * next batch, give the new topics/words `since: 5` — nothing else to touch.
+ * Anything without it is wave 3, i.e. everything up to the third exam. Waves
+ * in order become stages (Etapa 1, 2, 3…, see "stages" below): the newest gets
+ * its own "Lo nuevo" card and a NUEVO / "+N nuevas" chip on the topics it
+ * touches, older ones stay one tap away under "Por etapas". To add the next
+ * batch, give the new topics/words `since: 6` — nothing else to touch.
  *
  * Sources: colegio de Marilé, setiembre 2026 — "INGLES L 2" (examen oficial)
  * y "REPASO PRIMERO" (repaso armado por la mamá); octubre 2026 — fotos del
@@ -338,15 +339,52 @@ const CONTENT = {
             });
     },
 
-    latestWave(){
-        return Math.max(...CONTENT.allWords().map(w => w.since));
+    /* ---------- stages ----------
+       `since` holds a wave number (3, 4, 5…), which is what the data needs.
+       What she and her parents see is a stage: the waves in order, numbered
+       from 1, each with a plant that grows — Etapa 1 🌱, Etapa 2 🌿, Etapa 3 🌳.
+       The next batch is just a higher `since`; it becomes the next stage by
+       itself. (Prefer trimesters, "Fase", or a note per stage? Change
+       stage() — it's the only place the names live.) */
+
+    STAGE_EMOJI: ['🌱', '🌿', '🌳', '🌸', '🍎', '⭐'],
+
+    waves(){
+        return [...new Set(CONTENT.allWords().map(w => w.since))].sort((a, b) => a - b);
     },
 
-    /* "lo nuevo": every word from the latest wave, wherever it lives */
+    latestWave(){
+        const waves = CONTENT.waves();
+        return waves[waves.length - 1];
+    },
+
+    /* with a single wave there is nothing to tell apart, so no stage UI */
+    hasStages(){
+        return CONTENT.waves().length > 1;
+    },
+
+    stage(wave){
+        const i = CONTENT.waves().indexOf(wave);
+        return {
+            wave,
+            number: i + 1,
+            name: `Etapa ${i + 1}`,
+            emoji: CONTENT.STAGE_EMOJI[i] ?? '🌟',
+        };
+    },
+
+    wordsOfWave(wave){
+        return CONTENT.allWords().filter(w => w.since === wave);
+    },
+
+    /* "lo nuevo": every word from the latest stage, wherever it lives */
     newWords(){
-        const latest = CONTENT.latestWave();
-        if(latest <= CONTENT.DEFAULT_WAVE) return [];
-        return CONTENT.allWords().filter(w => w.since === latest);
+        return CONTENT.hasStages() ? CONTENT.wordsOfWave(CONTENT.latestWave()) : [];
+    },
+
+    /* the wave a topic first appeared in (a topic can keep growing later) */
+    introWave(topic){
+        return Math.min(...CONTENT.wordsOf(topic).map(w => w.since));
     },
 
     topicById(id){
