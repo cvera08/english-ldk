@@ -43,7 +43,9 @@ bar, like a real app.
   missing letters" exercises became multiple-choice spelling questions here.
 - **Question types, all generated from `content.js`.** Four work for any word:
   picture → word, word (+ 🔊) → picture, 🔊 only → picture, and picture → correct
-  spelling (with two auto-generated wrong spellings). Words that qualify also get
+  spelling (with two auto-generated wrong spellings). Wrong answers always come
+  from the same topic as the word (*yellow* among *red* and *blue*), like the
+  exam's own PEN / PENCIL and TABLE / SOFA pairs. Words that qualify also get
   formats lifted from the course book's tests: *count and choose* (number words),
   *Is it a dog? Yes, it is / No, it isn't*, *THIS IS AN ERASER ✔/✘*, and *I have…
   / Do you have a snake?* (pets). No manual authoring of wrong answers needed.

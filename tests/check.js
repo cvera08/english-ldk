@@ -239,9 +239,17 @@ const typeCount = {};
 const seenSentences = new Set();
 for(const m of modes){
     const words = wordsFor(m);
+    const poolUsed = poolFor(m, words) || words;
     for(let i = 0; i < 60; i++){
         const session = ENGINE.buildSession({ words, count: 16, pool: poolFor(m, words) });
         for(const q of session){
+            if(['image_to_word', 'word_to_image', 'audio_to_image'].includes(q.type)){
+                // wrong answers share the asked word's topic, as many as the pool has
+                const others = poolUsed.filter(w => w.topicId === q.word.topicId && w.en !== q.word.en).length;
+                const wrong = q.options.filter(o => !o.isCorrect).map(o => o.text ?? o.en);
+                const same = wrong.filter(en => poolUsed.some(w => w.en === en && w.topicId === q.word.topicId)).length;
+                check(same === Math.min(2, others), `${m}/${q.word.en}/${q.type}: ${same} of 2 wrong answers share its topic, ${Math.min(2, others)} could`);
+            }
             typeCount[q.type] = (typeCount[q.type] || 0) + 1;
             const n = q.options ? q.options.length : 0;
             const correct = q.options ? q.options.filter(o => o.isCorrect).length : 0;
@@ -278,45 +286,21 @@ console.log('  question types seen:', JSON.stringify(typeCount));
 
 /* ---------------------------------------------------------------- plausible wrong answers */
 
-section('wrong answers stay plausible when the bank is lent');
+section('wrong answers come from the asked word\'s own topic');
 {
-    // the function on its own
     const mk = (en, topicId) => ({ en, topicId });
     const me = mk('me', 'A');
     const pool = [me, mk('a1', 'A'), mk('a2', 'A'), mk('a3', 'A'), ...Array.from({ length: 40 }, (_, i) => mk('x' + i, 'B' + (i % 5)))];
-    let allSame = true, mixedSeen = false;
+    let allSame = true;
     for(let i = 0; i < 400; i++){
-        if(!ENGINE.pickDistractors(me, pool, 2, Math.random, true).every(w => w.topicId === 'A')) allSame = false;
-        if(ENGINE.pickDistractors(me, pool, 2).some(w => w.topicId !== 'A')) mixedSeen = true;
+        if(!ENGINE.pickDistractors(me, pool, 2).every(w => w.topicId === 'A')) allSame = false;
     }
-    check(allSame, 'sameTopicFirst: every wrong answer comes from the same topic when there are enough');
-    check(mixedSeen, 'default: wrong answers still come from the whole pool (Repaso general is unchanged)');
-    const short = ENGINE.pickDistractors(me, [me, mk('a1', 'A'), mk('z', 'B')], 2, Math.random, true).map(w => w.en).sort().join();
-    check(short === 'a1,z', `sameTopicFirst with too few same-topic words fills from elsewhere (got ${short})`);
-
-    // whole sessions, the way the app asks for them: a small stage, and a scattered handful
-    const all = CONTENT.allWords();
-    const topicOfEn = (en) => new Set(all.filter(w => w.en === en).map(w => w.topicId));
-    const sets = {
-        'newest stage': CONTENT.newWords(),
-        'weak words':   all.filter((w, i) => i % 11 === 0),
-        'missed words': all.filter((w, i) => i % 17 === 3),
-    };
-    for(const [label, words] of Object.entries(sets)){
-        let asked = 0, off = 0;
-        for(let i = 0; i < 80; i++){
-            for(const q of ENGINE.buildSession({ words, count: 12, pool: all })){
-                if(!['image_to_word', 'word_to_image', 'audio_to_image'].includes(q.type)) continue;
-                asked++;
-                const others = all.filter(w => w.topicId === q.word.topicId && w.en !== q.word.en).length;
-                const wrong = q.options.filter(o => !o.isCorrect).map(o => o.text ?? o.en);
-                const same = wrong.filter(en => topicOfEn(en).has(q.word.topicId)).length;
-                if(same !== Math.min(2, others)) off++;
-            }
-        }
-        check(off === 0, `${label}: ${off} of ${asked} picture questions had a wrong answer from another topic`);
-        console.log(`  ${label}: ${asked} picture questions, wrong answers all from the asked word's own topic`);
-    }
+    check(allSame, 'every wrong answer comes from the same topic when there are enough');
+    const short = ENGINE.pickDistractors(me, [me, mk('a1', 'A'), mk('z', 'B')], 2).map(w => w.en).sort().join();
+    check(short === 'a1,z', `with too few same-topic words it fills from elsewhere (got ${short})`);
+    const lone = ENGINE.pickDistractors(me, [me, mk('z', 'B')], 2).map(w => w.en).join();
+    check(lone === 'z', `and never invents answers (got ${lone})`);
+    console.log('  (the same rule is checked on every picture question of every mode, below)');
 }
 
 console.log(problems ? `\n${problems} PROBLEM(S) in ${checks} checks` : `\nall good (${checks} checks)`);
