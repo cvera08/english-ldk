@@ -26,14 +26,24 @@ const ENGINE = (() => {
         return a.en === b.en;
     }
 
-    /* pick `count` distractors for `word` out of `pool`, preferring
-       words from the same topic so the wrong answers stay plausible */
-    function pickDistractors(word, pool, count, rng = Math.random){
+    /* pick `count` distractors for `word` out of `pool`.
+
+       By default every other word in the pool is as likely as any other. With
+       `sameTopicFirst`, words from the asked-about word's own topic are used
+       up before any from elsewhere, so the wrong answers stay plausible:
+       "yellow" among red and blue, not among a 9 and a water bottle. That is
+       for a pool that was lent because the set being asked about is too small
+       to supply its own wrong answers (a stage of five words, the words she
+       keeps missing, a round of what she just missed). A full topic is
+       already all one topic, and Repaso general stays as it was. */
+    function pickDistractors(word, pool, count, rng = Math.random, sameTopicFirst = false){
 
         const sameTopic = pool.filter(w => w.topicId === word.topicId && !sameWord(w, word));
         const others     = pool.filter(w => w.topicId !== word.topicId && !sameWord(w, word));
 
-        const candidates = shuffle([...sameTopic, ...others], rng);
+        const candidates = sameTopicFirst
+            ? [...shuffle(sameTopic, rng), ...shuffle(others, rng)]
+            : shuffle([...sameTopic, ...others], rng);
 
         const picked = [];
         for(const candidate of candidates){
@@ -144,7 +154,7 @@ const ENGINE = (() => {
             rng
         );
         // not enough pets in the pool to fill a panel — ask the plain version
-        if(others.length < 3) return buildStatementQuestion('is_it', word, pool, rng);
+        if(others.length < 3) return buildStatementQuestion('is_it', word, pool, rng, true);
 
         const hasIt = rng() < 0.5;
         const panel = shuffle(hasIt ? [word, ...others.slice(0, 2)] : others.slice(0, 3), rng);
@@ -169,10 +179,10 @@ const ENGINE = (() => {
     // Shows `word`'s picture next to a sentence that is either true
     // ("Is it a dog?" under a dog) or names a different thing from the same
     // family (under a cat). A tidy yes/no, with the false one a plausible slip.
-    function buildStatementQuestion(type, word, pool, rng){
+    function buildStatementQuestion(type, word, pool, rng, sameTopicFirst = false){
         const others = pool.filter(w => w.frame === true && !sameWord(w, word));
         const isTrue = others.length === 0 || rng() < 0.5;
-        const claimed = isTrue ? word : pickDistractors(word, others, 1, rng)[0];
+        const claimed = isTrue ? word : pickDistractors(word, others, 1, rng, sameTopicFirst)[0];
 
         const sentence = type === 'is_it'
             ? `Is it ${articleFor(claimed)} ${claimed.en}?`
@@ -210,14 +220,14 @@ const ENGINE = (() => {
         return { type: 'count_objects', word, item, n, options };
     }
 
-    function buildQuestion(word, pool, type, rng = Math.random){
+    function buildQuestion(word, pool, type, rng = Math.random, sameTopicFirst = false){
 
         if(type === 'count_objects'){
             return buildCountQuestion(word, pool, rng);
         }
 
         if(type === 'is_it' || type === 'this_is'){
-            return buildStatementQuestion(type, word, pool, rng);
+            return buildStatementQuestion(type, word, pool, rng, sameTopicFirst);
         }
 
         if(type === 'do_you_have'){
@@ -233,7 +243,7 @@ const ENGINE = (() => {
             return { type, word, options };
         }
 
-        const distractors = pickDistractors(word, pool, 2, rng);
+        const distractors = pickDistractors(word, pool, 2, rng, sameTopicFirst);
 
         if(type === 'image_to_word'){
             const options = shuffle(
@@ -257,7 +267,9 @@ const ENGINE = (() => {
 
         // `pool` supplies wrong-answer candidates and defaults to `words`;
         // pass a bigger pool explicitly for a small session (e.g. a
-        // few missed words) so distractors don't run out
+        // few missed words) so distractors don't run out. A pool that was
+        // passed in is lent, and its same-topic words go first (see above).
+        const lent = !!pool;
         pool = pool || words;
 
         // sample without replacement, looping the (reshuffled) pool if
@@ -280,7 +292,7 @@ const ENGINE = (() => {
             const specials = special ? specialTypesFor(word) : [];
             if(specials.length && rng() < SPECIAL_CHANCE){
                 const type = specials[Math.floor(rng() * specials.length)];
-                return buildQuestion(word, pool, type, rng);
+                return buildQuestion(word, pool, type, rng, lent);
             }
 
             let type = nextType();
@@ -292,7 +304,7 @@ const ENGINE = (() => {
             if(type === 'audio_to_image' && word.noSpeech){
                 type = 'image_to_word';
             }
-            return buildQuestion(word, pool, type, rng);
+            return buildQuestion(word, pool, type, rng, lent);
         });
     }
 

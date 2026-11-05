@@ -276,5 +276,48 @@ for(const m of modes){
 }
 console.log('  question types seen:', JSON.stringify(typeCount));
 
+/* ---------------------------------------------------------------- plausible wrong answers */
+
+section('wrong answers stay plausible when the bank is lent');
+{
+    // the function on its own
+    const mk = (en, topicId) => ({ en, topicId });
+    const me = mk('me', 'A');
+    const pool = [me, mk('a1', 'A'), mk('a2', 'A'), mk('a3', 'A'), ...Array.from({ length: 40 }, (_, i) => mk('x' + i, 'B' + (i % 5)))];
+    let allSame = true, mixedSeen = false;
+    for(let i = 0; i < 400; i++){
+        if(!ENGINE.pickDistractors(me, pool, 2, Math.random, true).every(w => w.topicId === 'A')) allSame = false;
+        if(ENGINE.pickDistractors(me, pool, 2).some(w => w.topicId !== 'A')) mixedSeen = true;
+    }
+    check(allSame, 'sameTopicFirst: every wrong answer comes from the same topic when there are enough');
+    check(mixedSeen, 'default: wrong answers still come from the whole pool (Repaso general is unchanged)');
+    const short = ENGINE.pickDistractors(me, [me, mk('a1', 'A'), mk('z', 'B')], 2, Math.random, true).map(w => w.en).sort().join();
+    check(short === 'a1,z', `sameTopicFirst with too few same-topic words fills from elsewhere (got ${short})`);
+
+    // whole sessions, the way the app asks for them: a small stage, and a scattered handful
+    const all = CONTENT.allWords();
+    const topicOfEn = (en) => new Set(all.filter(w => w.en === en).map(w => w.topicId));
+    const sets = {
+        'newest stage': CONTENT.newWords(),
+        'weak words':   all.filter((w, i) => i % 11 === 0),
+        'missed words': all.filter((w, i) => i % 17 === 3),
+    };
+    for(const [label, words] of Object.entries(sets)){
+        let asked = 0, off = 0;
+        for(let i = 0; i < 80; i++){
+            for(const q of ENGINE.buildSession({ words, count: 12, pool: all })){
+                if(!['image_to_word', 'word_to_image', 'audio_to_image'].includes(q.type)) continue;
+                asked++;
+                const others = all.filter(w => w.topicId === q.word.topicId && w.en !== q.word.en).length;
+                const wrong = q.options.filter(o => !o.isCorrect).map(o => o.text ?? o.en);
+                const same = wrong.filter(en => topicOfEn(en).has(q.word.topicId)).length;
+                if(same !== Math.min(2, others)) off++;
+            }
+        }
+        check(off === 0, `${label}: ${off} of ${asked} picture questions had a wrong answer from another topic`);
+        console.log(`  ${label}: ${asked} picture questions, wrong answers all from the asked word's own topic`);
+    }
+}
+
 console.log(problems ? `\n${problems} PROBLEM(S) in ${checks} checks` : `\nall good (${checks} checks)`);
 process.exit(problems ? 1 : 0);
