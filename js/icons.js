@@ -104,8 +104,10 @@ const ICONS = {
             body = stroked(a => `<polyline points="10,68 26,34 42,66 58,34 74,66 90,34" fill="none" stroke-linejoin="miter" stroke-miterlimit="6" ${a}/>`, 11);
         }else if(name === 'yellow'){     // an arch
             body = stroked(a => `<path d="M24 76 A26 26 0 0 1 76 76" fill="none" stroke-linecap="round" ${a}/>`, 20);
-        }else if(name === 'blue'){       // a slanted block, like an N
-            body = filled('M10 84 L16 18 L36 18 L62 56 L66 18 L90 18 L84 84 L64 84 L38 44 L34 84 Z');
+        }else if(name === 'blue'){       // a heavy slanted block: three legs, almost no gaps
+            // (a clean letter N read as the letter; her sheet's shape is this
+            // solid, with only two small notches, and she reads it as a zigzag)
+            body = filled('M5 92.5 L17.2 19.1 L60.7 37.3 L69.4 4 L94.9 11.3 L78.1 72.7 L37.5 56.2 L30.2 96.5 Z');
         }
 
         return `<svg viewBox="0 0 100 100" class="icon-svg">${body}</svg>`;
