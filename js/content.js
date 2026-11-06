@@ -46,7 +46,7 @@ const CONTENT = {
     // scripts always come from the same release, never half old, half new.
     // Bump BUILD and RELEASED on every push that changes the app — the version
     // shows in small print on the home screen, to see what a device has.
-    BUILD: '5.1',
+    BUILD: '5.2',
     RELEASED: '3 nov 2026',
     get VERSION(){ return `v${this.BUILD} · ${this.RELEASED}`; },
 
