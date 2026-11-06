@@ -294,22 +294,24 @@ const CONTENT = {
             since: 4,
             name: { es: 'Los colores', en: 'Colors' },
             words: [
-                // from the book's tests (October): brown, black and gray keep
-                // a plain round swatch; green and pink wear the shape they
-                // have on the school's review sheet
-                { en: 'green', es: 'verde',   icon: ICONS.color('green') },
-                { en: 'brown', es: 'marrón',  icon: ICONS.swatch('#8d5524') },
-                { en: 'black', es: 'negro',   icon: ICONS.swatch('#2b2b2b') },
-                { en: 'gray',  es: 'gris',    icon: ICONS.swatch('#9e9e9e') },
-                { en: 'pink',  es: 'rosado',  icon: ICONS.color('pink') },
-
-                // from the school's review sheet (November) — the one color
-                // that's also a fruit: orange, kept as its own word (see allWords)
+                // The school's November sheet lists seven colors together, and
+                // "Lo nuevo" is what that sheet asks of her — so all seven are
+                // wave 5, even green and pink, which were already in the app
+                // from October. (Left as wave 4 they only ever showed up as
+                // wrong answers in "Lo nuevo", never as the question.) Each is
+                // drawn as the shape printed next to it on the sheet.
                 { en: 'blue',   es: 'azul',     icon: ICONS.color('blue'),   since: 5 },
-                { en: 'orange', es: 'naranja',  icon: ICONS.color('orange'), since: 5 },
+                { en: 'green',  es: 'verde',    icon: ICONS.color('green'),  since: 5 },
+                { en: 'orange', es: 'naranja',  icon: ICONS.color('orange'), since: 5 }, // also a fruit: see allWords
+                { en: 'pink',   es: 'rosado',   icon: ICONS.color('pink'),   since: 5 },
                 { en: 'purple', es: 'violeta',  icon: ICONS.color('purple'), since: 5 },
                 { en: 'red',    es: 'rojo',     icon: ICONS.color('red'),    since: 5 },
                 { en: 'yellow', es: 'amarillo', icon: ICONS.color('yellow'), since: 5 },
+
+                // from the book's tests (October), not on the sheet: plain swatches
+                { en: 'brown', es: 'marrón',  icon: ICONS.swatch('#8d5524') },
+                { en: 'black', es: 'negro',   icon: ICONS.swatch('#2b2b2b') },
+                { en: 'gray',  es: 'gris',    icon: ICONS.swatch('#9e9e9e') },
             ],
         },
     ],

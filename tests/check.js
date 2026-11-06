@@ -242,6 +242,12 @@ for(const m of modes){
     const poolUsed = poolFor(m, words) || words;
     for(let i = 0; i < 60; i++){
         const session = ENGINE.buildSession({ words, count: 16, pool: poolFor(m, words) });
+        if(words.length <= 16){
+            // a short list is covered before anything repeats: no word is left out of the round
+            const asked = new Set(session.map(q => q.word.en + '|' + q.word.icon));
+            const missing = words.filter(w => !asked.has(w.en + '|' + w.icon)).map(w => w.en);
+            check(missing.length === 0, `${m}: never asked about ${missing} in a round of 16`);
+        }
         for(const q of session){
             if(['image_to_word', 'word_to_image', 'audio_to_image'].includes(q.type)){
                 // wrong answers share the asked word's topic, as many as the pool has
