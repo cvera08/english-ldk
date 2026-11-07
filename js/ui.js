@@ -14,7 +14,7 @@ const UI = (() => {
         topicId: null,
         topicLabel: '',
         questionCount: 12,
-        missedWords: [],  // words gotten wrong at least once this session — offered as a review round after
+        missed: [],       // exercises ({ word, type }) gotten wrong at least once this session — offered as a review round after
         isReview: false,  // true while playing that review round: doesn't touch best-score storage
     };
 
@@ -353,7 +353,7 @@ const UI = (() => {
         });
         state.index = 0;
         state.correctFirstTry = 0;
-        state.missedWords = [];
+        state.missed = [];
         state.isReview = false;
         state.topicId = topicId;
         state.topicLabel = labelFor(topicId);
@@ -362,23 +362,23 @@ const UI = (() => {
         renderQuestion();
     }
 
-    // an optional round made only of what she got wrong last time —
-    // doesn't touch state.topicId, so "Jugar de nuevo" from here still
-    // replays the full original topic, not just this small review pool
+    // an optional round made only of what she got wrong: first each exercise
+    // again exactly as she missed it, then (for a short list) each word once
+    // more in another format. Doesn't touch state.topicId, so "Jugar de nuevo"
+    // from here still replays the full original topic, not this small pool
     function startReview(){
-        if(state.missedWords.length === 0) return;
+        if(state.missed.length === 0) return;
 
         window.speechSynthesis && window.speechSynthesis.cancel();
 
-        state.session = ENGINE.buildSession({
-            words: state.missedWords,
+        state.session = ENGINE.buildReview({
+            items: state.missed,
             pool: CONTENT.allWords(),
-            count: state.missedWords.length,
             types: allowedTypes(),
         });
         state.index = 0;
         state.correctFirstTry = 0;
-        state.missedWords = [];
+        state.missed = [];
         state.isReview = true;
         state.topicLabel = 'Repaso de errores';
 
@@ -517,10 +517,11 @@ const UI = (() => {
             STORAGE.recordWord(q.word.en, !state.attemptedWrong);
 
             if(state.attemptedWrong){
-                const already = state.missedWords.some(
-                    w => w.en === q.word.en && w.topicId === q.word.topicId
+                // the same word missed in two formats is two exercises to redo
+                const already = state.missed.some(
+                    m => m.word.en === q.word.en && m.word.icon === q.word.icon && m.type === q.type
                 );
-                if(!already) state.missedWords.push(q.word);
+                if(!already) state.missed.push({ word: q.word, type: q.type });
             }else{
                 state.correctFirstTry++;
             }
@@ -573,7 +574,7 @@ const UI = (() => {
         };
         els.endTitle.textContent = titles[stars];
         els.endScore.textContent = state.isReview
-            ? `Repasaste ${total} palabra${total === 1 ? '' : 's'} — acertaste ${state.correctFirstTry} a la primera`
+            ? `Repasaste ${total} pregunta${total === 1 ? '' : 's'} — acertaste ${state.correctFirstTry} a la primera`
             : `Acertaste ${state.correctFirstTry} de ${total} a la primera`;
 
         // a review round is just practice — it never touches the topic's
@@ -588,7 +589,7 @@ const UI = (() => {
                 : (best ? `Tu mejor puntaje: ${best.correct}/${best.total} ${'★'.repeat(best.stars)}` : '');
         }
 
-        const missedCount = state.missedWords.length;
+        const missedCount = state.missed.length;
         els.btnPracticeMissed.classList.toggle('hidden', missedCount === 0);
         els.btnPracticeMissed.textContent = `🔁 Practicar lo que fallé (${missedCount})`;
 

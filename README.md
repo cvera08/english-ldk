@@ -36,8 +36,12 @@ bar, like a real app.
   engine never offers one as the other's wrong answer.
 - **A memory of what costs her.** Every answer updates a per-word record in the
   browser. Words she misses and hasn't yet got right twice in a row first try
-  show up under "Lo que más le cuesta"; the end-of-round "Practicar lo que fallé"
-  replays that round's misses. Neither touches a saved best score.
+  show up under "Lo que más le cuesta". The end-of-round "Practicar lo que fallé"
+  remembers the *exercise*, not just the word: miss the spelling of *purple* and
+  the review starts with that same spelling question (fresh, shuffled options),
+  and only then — when the list is short enough to keep the round under 12
+  questions — asks each word once more in a different format. Neither touches a
+  saved best score.
 - **Everything is tap-only.** No text inputs anywhere, on purpose: this is meant
   to be played on an iPad or phone by a pre-reader. Even the exam's "write the
   missing letters" exercises became multiple-choice spelling questions here.
