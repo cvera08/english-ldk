@@ -290,6 +290,54 @@ for(const m of modes){
 }
 console.log('  question types seen:', JSON.stringify(typeCount));
 
+/* ---------------------------------------------------------------- review round */
+
+section('review round: the exact exercise again, then another format');
+{
+    const all = CONTENT.allWords();
+    const key = (w, t) => `${w.en}|${w.icon}|${t}`;
+    const wkey = (w) => `${w.en}|${w.icon}`;
+
+    // eligibility: a format a word can't carry is never offered
+    const cupboard = all.find(w => w.en === 'cupboard');
+    check(cupboard.noSpeech && !ENGINE.eligibleTypes(cupboard).includes('audio_to_image'), 'a word the voice mangles is never given the listen-only format');
+    check(!ENGINE.eligibleTypes({ en: 'ox', icon: 'x' }).includes('spelling_choice'), 'a two-letter word is never given the spelling format');
+    check(ENGINE.eligibleTypes(all.find(w => w.en === 'three')).includes('count_objects'), 'a number word can be counted');
+
+    let rounds = 0, short = 0, long = 0, issues = 0;
+    for(let i = 0; i < 500; i++){
+        // pretend she missed some of the exercises of a real round
+        const session = ENGINE.buildSession({ words: all, count: 16 });
+        const seen = new Set(), items = [];
+        for(const q of ENGINE.shuffle(session).slice(0, 1 + Math.floor(Math.random() * 14))){
+            if(!seen.has(key(q.word, q.type))){ seen.add(key(q.word, q.type)); items.push({ word: q.word, type: q.type }); }
+        }
+        const review = ENGINE.buildReview({ items, pool: all });
+        rounds++;
+
+        const twoPasses = items.length * 2 <= 12;
+        check(review.length === (twoPasses ? items.length * 2 : items.length), `${items.length} missed -> ${review.length} questions (want ${twoPasses ? items.length * 2 : items.length})`);
+        twoPasses ? short++ : long++;
+
+        // pass 1 is exactly what she missed: same word, same format
+        const first = review.slice(0, items.length).map(q => key(q.word, q.type)).sort().join('\n');
+        check(first === items.map(m => key(m.word, m.type)).sort().join('\n'), 'the first pass is the exact exercises she missed');
+
+        if(twoPasses){
+            const second = review.slice(items.length);
+            check(second.map(q => wkey(q.word)).sort().join() === items.map(m => wkey(m.word)).sort().join(), 'the second pass asks each word once more');
+            check(second.every(q => items.some(m => wkey(m.word) === wkey(q.word) && m.type !== q.type)), 'and in a format other than the one it was missed in');
+            check(second.every(q => ENGINE.eligibleTypes(q.word).includes(q.type)), 'and only in a format that word can carry');
+            const words = new Set(items.map(m => wkey(m.word)));
+            check(words.size < 2 || review.length <= items.length || wkey(review[items.length - 1].word) !== wkey(review[items.length].word), 'the second pass does not open with the word that closed the first');
+        }
+        for(const q of review){
+            if(q.options) check(q.options.filter(o => o.isCorrect).length === 1, `${q.word.en}/${q.type}: exactly one correct option`);
+        }
+    }
+    console.log(`  ${rounds} simulated rounds (${short} with two passes, ${long} long enough for just the repeats)`);
+}
+
 /* ---------------------------------------------------------------- plausible wrong answers */
 
 section('wrong answers come from the asked word\'s own topic');

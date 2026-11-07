@@ -301,6 +301,48 @@ const ENGINE = (() => {
         });
     }
 
+    /* ---------- review round ----------
+       What she got wrong is an exercise, not just a word: miss the spelling
+       of "purple" and a listen-and-pick question about purple practices
+       something else. So a review starts from the exact exercise — the same
+       word in the same format — and only then, if the round is short enough,
+       asks each word once more in a different format. */
+
+    // the question types this word can actually carry
+    function eligibleTypes(word, types = QUESTION_TYPES){
+        const generic = types.filter(t => {
+            if(t === 'spelling_choice') return word.en.replace(' ', '').length >= 3;
+            if(t === 'audio_to_image') return !word.noSpeech;
+            return true;
+        });
+        return [...generic, ...specialTypesFor(word)];
+    }
+
+    // a review round never grows past this many questions on account of the
+    // second, varied pass (a long list gets just the exact repeats)
+    const MAX_REVIEW = 12;
+
+    // items: [{ word, type }] — the exercises she missed
+    function buildReview({ items, pool, types = QUESTION_TYPES, rng = Math.random }){
+        // pass 1: each missed exercise again, same word, same format. The
+        // options are drawn fresh and shuffled, so it can't be answered by
+        // remembering which button it was
+        const again = shuffle(items, rng).map(({ word, type }) => buildQuestion(word, pool, type, rng));
+        if(items.length * 2 > MAX_REVIEW) return again;
+
+        // pass 2: each word once more, in some other format it can carry
+        const other = shuffle(items, rng).map(({ word, type }) => {
+            const choices = eligibleTypes(word, types).filter(t => t !== type);
+            const next = choices.length ? choices[Math.floor(rng() * choices.length)] : type;
+            return buildQuestion(word, pool, next, rng);
+        });
+        // don't open the second pass with the word that closed the first
+        if(other.length > 1 && sameWord(other[0].word, again[again.length - 1].word)){
+            other.push(other.shift());
+        }
+        return [...again, ...other];
+    }
+
     function starsFor(correctFirstTry, total){
         if(total === 0) return 0;
         const ratio = correctFirstTry / total;
@@ -315,6 +357,8 @@ const ENGINE = (() => {
         corruptSpelling,
         buildQuestion,
         buildSession,
+        buildReview,
+        eligibleTypes,
         starsFor,
         specialTypesFor,
         QUESTION_TYPES,
