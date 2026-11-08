@@ -31,6 +31,10 @@
  * touches, older ones stay one tap away under "Por etapas". To add the next
  * batch, give the new topics/words `since: 6` — nothing else to touch.
  *
+ * Sheets: a list the school printed for an exam is a subset of this bank —
+ * add it to SHEETS (further down) as a list of spellings, not as copies of
+ * words, and it gets its own card ("Repaso de la hoja") and best score.
+ *
  * Sources: colegio de Marilé, setiembre 2026 — "INGLES L 2" (examen oficial)
  * y "REPASO PRIMERO" (repaso armado por la mamá); octubre 2026 — fotos del
  * cuaderno de mamá y de los tests fotocopiables del libro "GO! International 1"
@@ -315,6 +319,45 @@ const CONTENT = {
             ],
         },
     ],
+
+    /* ---------- sheets ----------
+       A sheet is a list the school printed for an exam: nothing but a set of
+       spellings picked out of the bank above (the app teaches more than any
+       one sheet does, so a sheet is a subset, never a copy of the words).
+       Each sheet gets its own card on the home screen and its own best score.
+       The next one is another object here — the card appears by itself. */
+    SHEETS: [
+        {
+            id: 'repaso-primero',
+            name: 'Repaso de la hoja',
+            icon: '📝',
+            // "Repaso Primero", the school's pre-final sheet (november 2026), page by page.
+            // "fruits", "meat", "salad", "soup" and "yogurt" have a picture there but
+            // no printed label. An orange is on it twice (fruit and color): both come.
+            words: [
+                'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten',
+                'blue', 'green', 'orange', 'pink', 'purple', 'red', 'yellow',
+                'book', 'crayon', 'eraser', 'glue', 'pen', 'pencil', 'ruler', 'sharpener', 'backpack', 'pencil case',
+                'cat', 'dog', 'fish', 'mouse', 'parrot', 'rabbit', 'snake', 'spider',
+                'ball', 'doll', 'car', 'plane', 'robot', 'teddy bear', 'scooter', 'game console', 'train',
+                'hand', 'head', 'knee', 'arm', 'foot', 'leg', 'nose', 'toe',
+                'hop', 'jump', 'run', 'jump rope', 'walk',
+                'cake', 'cheese', 'chicken', 'fruits', 'meat', 'salad', 'soup', 'yogurt',
+                'milk', 'water', 'juice',
+                'apple', 'banana', 'mangoes', 'pear', 'strawberry',
+            ],
+        },
+    ],
+
+    sheetById(id){
+        return CONTENT.SHEETS.find(s => s.id === id);
+    },
+
+    /* a sheet's words: every bank word spelled as one the sheet lists */
+    wordsOfSheet(sheet){
+        const listed = new Set(sheet.words);
+        return CONTENT.allWords().filter(w => listed.has(w.en));
+    },
 
     /* a topic's words, each tagged with its topic id and the wave it came in */
     wordsOf(topic){

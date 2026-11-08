@@ -130,6 +130,49 @@ section('stages');
     console.log(`  waves ${waves} -> ` + stages.map(st => `${st.emoji} ${st.name} (${CONTENT.wordsOfWave(st.wave).length})`).join(', '));
 }
 
+/* ---------------------------------------------------------------- sheets */
+
+section('sheets (lists printed by the school)');
+{
+    const bank = CONTENT.allWords();
+    const bankSpellings = new Set(bank.map(w => w.en));
+    const reserved = new Set(['all', 'weak', ...CONTENT.TOPICS.map(t => t.id)]);
+    check(CONTENT.SHEETS.length >= 1, 'there is at least one sheet');
+    check(new Set(CONTENT.SHEETS.map(s => s.id)).size === CONTENT.SHEETS.length, 'sheet ids are unique');
+    for(const sheet of CONTENT.SHEETS){
+        check(/^[a-z0-9-]+$/.test(sheet.id) && !reserved.has(sheet.id), `${sheet.id}: id is plain and does not clash with a topic or a mode`);
+        check(sheet.name && sheet.icon, `${sheet.id}: has a name and an icon`);
+        check(CONTENT.sheetById(sheet.id) === sheet, `${sheet.id}: sheetById finds it`);
+        // a typo in the list would silently drop a word from the round
+        const unknown = sheet.words.filter(en => !bankSpellings.has(en));
+        check(unknown.length === 0, `${sheet.id}: listed words that are not in the bank: ${unknown}`);
+        const dupes = sheet.words.filter((en, i) => sheet.words.indexOf(en) !== i);
+        check(dupes.length === 0, `${sheet.id}: listed twice: ${dupes}`);
+
+        // its words: every picture of every listed spelling, nothing else, no repeats
+        const words = CONTENT.wordsOfSheet(sheet);
+        check(words.every(w => sheet.words.includes(w.en)), `${sheet.id}: only listed spellings`);
+        check(sheet.words.every(en => words.some(w => w.en === en)), `${sheet.id}: every listed spelling is there`);
+        check(new Set(words.map(w => w.en + '|' + w.icon)).size === words.length, `${sheet.id}: no word twice`);
+        check(words.length >= 12, `${sheet.id}: enough words for a round (${words.length})`);
+    }
+
+    // the sheet of november 2026 (Repaso Primero): 75 entries on paper, "fish"
+    // printed twice and an orange being both a fruit and a color
+    const primero = CONTENT.sheetById('repaso-primero');
+    const ofPrimero = CONTENT.wordsOfSheet(primero);
+    check(primero.words.length === 73, `73 different spellings (got ${primero.words.length})`);
+    check(ofPrimero.length === 74, `74 words: the orange counts twice (got ${ofPrimero.length})`);
+    check(ofPrimero.filter(w => w.en === 'orange').length === 2, 'orange: the fruit and the color are both there');
+    check(ofPrimero.filter(w => w.en === 'fish').length === 1, 'fish: once, though the sheet shows it as a pet and as food');
+    const onIt = new Set(ofPrimero.map(w => w.en + '|' + w.icon));
+    const left = bank.filter(w => !onIt.has(w.en + '|' + w.icon)).map(w => w.en);
+    check(left.length === bank.length - 74, `the other ${bank.length - 74} bank words are off the sheet (got ${left.length})`);
+    check(['chair', 'mom', 'happy', 'bed', 'spring', 'brown', 'stripes', 'teacher'].every(en => left.includes(en)), 'words that are not on the sheet stay out of it');
+    check(['dog', 'red', 'seven', 'milk', 'knee'].every(en => !left.includes(en)), 'words that are on it are not left out');
+    console.log(`  ${CONTENT.SHEETS.map(s => `${s.icon} ${s.name}: ${CONTENT.wordsOfSheet(s).length} words`).join(' | ')}; ${left.length} bank words are not on it`);
+}
+
 /* ---------------------------------------------------------------- storage */
 
 section('storage (best scores + what costs her)');
@@ -247,9 +290,10 @@ section('page wiring (index.html <-> ui.js)');
 /* ---------------------------------------------------------------- sessions */
 
 section('sessions');
-const modes = [...CONTENT.TOPICS.map(t => t.id), 'all', ...CONTENT.waves().map(w => `wave:${w}`), 'weak-like'];
+const modes = [...CONTENT.TOPICS.map(t => t.id), 'all', ...CONTENT.waves().map(w => `wave:${w}`), ...CONTENT.SHEETS.map(sh => `sheet:${sh.id}`), 'weak-like'];
 const wordsFor = (m) => m === 'all' ? CONTENT.allWords()
     : m.startsWith('wave:') ? CONTENT.wordsOfWave(Number(m.slice(5)))
+    : m.startsWith('sheet:') ? CONTENT.wordsOfSheet(CONTENT.sheetById(m.slice(6)))
     : m === 'weak-like' ? CONTENT.allWords().filter((w, i) => i % 11 === 0)    // a scattered handful, like "lo que más le cuesta"
     : CONTENT.wordsOf(CONTENT.topicById(m));
 // the app borrows wrong answers from the whole bank when the set is small
