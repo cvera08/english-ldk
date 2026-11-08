@@ -101,6 +101,24 @@ const UI = (() => {
         return CONTENT.allWords().filter(w => weak.has(w.en));
     }
 
+    // The weak list as exercises: each word paired with the format she last
+    // missed it in (a random eligible one when none was kept, or it no longer
+    // applies), worst first. `limit` keeps the worst few.
+    function weakItems(limit){
+        const bank = CONTENT.allWords();
+        const types = allowedTypes();
+        const items = [];
+        for(const entry of STORAGE.weakEntries()){
+            for(const word of bank.filter(w => w.en === entry.word)){   // a homonym brings both pictures
+                const eligible = ENGINE.eligibleTypes(word, types);
+                if(!eligible.length) continue;
+                const type = entry.type && eligible.includes(entry.type) ? entry.type : pick(eligible);
+                items.push({ word, type });
+            }
+        }
+        return limit ? items.slice(0, limit) : items;
+    }
+
     function labelFor(id){
         if(id === 'all') return 'Repaso general';
         if(id === 'weak') return 'Lo que más le cuesta';
@@ -339,18 +357,25 @@ const UI = (() => {
             return;
         }
 
-        // a short list shouldn't be drilled to death: at most 2 passes
-        // over the weak words, 4 over an ordinary small topic
-        const passes = topicId === 'weak' ? 2 : 4;
-
-        state.session = ENGINE.buildSession({
-            words,
-            count: Math.min(state.questionCount, words.length * passes),
-            types: allowedTypes(),
-            // a short list (the weak words, or a stage that is only a handful
-            // of words) would run out of wrong answers drawn from itself
-            pool: (topicId === 'weak' || words.length < 8) ? CONTENT.allWords() : undefined,
-        });
+        if(topicId === 'weak'){
+            // the worst few, each first in the exact format she missed it in and
+            // then in another one: two questions per word, as many words as fit
+            state.session = ENGINE.buildReview({
+                items: weakItems(Math.floor(state.questionCount / 2)),
+                pool: CONTENT.allWords(),
+                types: allowedTypes(),
+                max: state.questionCount,
+            });
+        }else{
+            state.session = ENGINE.buildSession({
+                words,
+                count: Math.min(state.questionCount, words.length * 4),
+                types: allowedTypes(),
+                // a short list (a stage that is only a handful of words)
+                // would run out of wrong answers drawn from itself
+                pool: words.length < 8 ? CONTENT.allWords() : undefined,
+            });
+        }
         state.index = 0;
         state.correctFirstTry = 0;
         state.missed = [];
@@ -514,7 +539,7 @@ const UI = (() => {
             els.quizFeedback.textContent = pick(RIGHT_MESSAGES);
             els.quizFeedback.className = 'quiz-feedback feedback-good';
 
-            STORAGE.recordWord(q.word.en, !state.attemptedWrong);
+            STORAGE.recordWord(q.word.en, !state.attemptedWrong, q.type);
 
             if(state.attemptedWrong){
                 // the same word missed in two formats is two exercises to redo

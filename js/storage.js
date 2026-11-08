@@ -42,7 +42,8 @@ const STORAGE = (() => {
     }
 
     /* ---------- per-word memory: what she keeps getting wrong ----------
-       { "<word>": { m: first-try misses so far, s: first-try hits in a row } }
+       { "<word>": { m: first-try misses so far, s: first-try hits in a row,
+                 t: the question type it was last missed in (optional) } }
        A word "costs her" while it has been missed and hasn't yet been got
        right twice in a row first try — then it graduates off the list, and
        comes back if she misses it again. */
@@ -57,7 +58,7 @@ const STORAGE = (() => {
         }
     }
 
-    function recordWord(word, firstTry){
+    function recordWord(word, firstTry, type){
         const all = readStats();
         const current = all[word] || { m: 0, s: 0 };
         if(firstTry){
@@ -65,6 +66,7 @@ const STORAGE = (() => {
         }else{
             current.m += 1;
             current.s = 0;
+            if(type) current.t = type;   // the format she missed it in — see weakEntries
         }
         all[word] = current;
         try{
@@ -74,9 +76,19 @@ const STORAGE = (() => {
         }
     }
 
-    function weakWords(){
+    // The weak list, worst first (more misses, then a shorter streak), each
+    // with the format it was last missed in (null for a record from before
+    // formats were kept: those fall back to a random format).
+    function weakEntries(){
         const all = readStats();
-        return Object.keys(all).filter(word => all[word].m > 0 && all[word].s < 2);
+        return Object.keys(all)
+            .filter(word => all[word].m > 0 && all[word].s < 2)
+            .map(word => ({ word, misses: all[word].m, streak: all[word].s, type: all[word].t || null }))
+            .sort((a, b) => b.misses - a.misses || a.streak - b.streak);
+    }
+
+    function weakWords(){
+        return weakEntries().map(e => e.word);
     }
 
     function resetAll(){
@@ -88,5 +100,5 @@ const STORAGE = (() => {
         }
     }
 
-    return { getBest, saveBest, resetAll, recordWord, weakWords };
+    return { getBest, saveBest, resetAll, recordWord, weakWords, weakEntries };
 })();

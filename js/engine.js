@@ -322,13 +322,14 @@ const ENGINE = (() => {
     // second, varied pass (a long list gets just the exact repeats)
     const MAX_REVIEW = 12;
 
-    // items: [{ word, type }] — the exercises she missed
-    function buildReview({ items, pool, types = QUESTION_TYPES, rng = Math.random }){
+    // items: [{ word, type }] — the exercises she missed. `max` is the most
+    // questions the round may have, counting the second pass
+    function buildReview({ items, pool, types = QUESTION_TYPES, rng = Math.random, max = MAX_REVIEW }){
         // pass 1: each missed exercise again, same word, same format. The
         // options are drawn fresh and shuffled, so it can't be answered by
         // remembering which button it was
         const again = shuffle(items, rng).map(({ word, type }) => buildQuestion(word, pool, type, rng));
-        if(items.length * 2 > MAX_REVIEW) return again;
+        if(items.length * 2 > max) return again;
 
         // pass 2: each word once more, in some other format it can carry
         const other = shuffle(items, rng).map(({ word, type }) => {

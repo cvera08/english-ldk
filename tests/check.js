@@ -166,6 +166,26 @@ section('storage (best scores + what costs her)');
     check(!STORAGE.weakWords().includes('cat'), 'a word she never missed is never on the list');
     check('english-ldk-word-stats' in ls.data, 'word memory lives under the key the live app already uses');
 
+    // the format she missed a word in is kept, so a review can start from it
+    reset();
+    STORAGE.recordWord('purple', false, 'spelling_choice');
+    check(STORAGE.weakEntries()[0].type === 'spelling_choice', 'a miss keeps the format it was missed in');
+    STORAGE.recordWord('purple', true, 'word_to_image');
+    check(STORAGE.weakEntries()[0].type === 'spelling_choice', 'a later hit does not overwrite it');
+    STORAGE.recordWord('purple', false, 'audio_to_image');
+    check(STORAGE.weakEntries()[0].type === 'audio_to_image', 'a newer miss replaces it');
+    // a record saved before formats were kept (what her phone holds today) still works
+    ls.data['english-ldk-word-stats'] = JSON.stringify({ dog: { m: 2, s: 0 }, cat: { m: 1, s: 1 } });
+    check(STORAGE.weakEntries().map(e => `${e.word}:${e.type}`).join() === 'dog:null,cat:null', 'an old record has no format and still counts');
+    STORAGE.recordWord('dog', false, 'is_it');
+    check(STORAGE.weakEntries()[0].type === 'is_it' && STORAGE.weakEntries()[0].misses === 3, 'and picks up a format on its next miss');
+    // worst first: more misses, then a shorter streak
+    reset();
+    STORAGE.recordWord('a', false, 'x');
+    STORAGE.recordWord('b', false, 'x'); STORAGE.recordWord('b', false, 'x');
+    STORAGE.recordWord('c', false, 'x'); STORAGE.recordWord('c', true, 'x');
+    check(STORAGE.weakWords().join() === 'b,a,c', `weak list is worst first (got ${STORAGE.weakWords()})`);
+
     // reset wipes both
     STORAGE.saveBest('family', 3, 12, 12);
     STORAGE.resetAll();
@@ -335,6 +355,13 @@ section('review round: the exact exercise again, then another format');
             if(q.options) check(q.options.filter(o => o.isCorrect).length === 1, `${q.word.en}/${q.type}: exactly one correct option`);
         }
     }
+    // the cap is a parameter: a round of 10 allows the second pass for 5 items, 8 does not
+    const five = ENGINE.shuffle(all).slice(0, 5).map(word => ({ word, type: 'image_to_word' }));
+    check(ENGINE.buildReview({ items: five, pool: all, max: 10 }).length === 10, 'max 10 allows two passes over 5 items');
+    check(ENGINE.buildReview({ items: five, pool: all, max: 8 }).length === 5, 'max 8 keeps just the exact repeats of 5 items');
+    check(ENGINE.buildReview({ items: five, pool: all }).length === 10, 'the default cap is 12: 5 items still get two passes');
+    const seven = ENGINE.shuffle(all).slice(0, 7).map(word => ({ word, type: 'image_to_word' }));
+    check(ENGINE.buildReview({ items: seven, pool: all }).length === 7, 'and 7 items (14 would pass 12) get just the exact repeats');
     console.log(`  ${rounds} simulated rounds (${short} with two passes, ${long} long enough for just the repeats)`);
 }
 
