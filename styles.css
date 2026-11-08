@@ -138,6 +138,17 @@ button{
     font-size: 22px;
 }
 
+/* a sheet from school: blue, so it reads apart from the pink/orange cards */
+.card-sheet{
+    background: linear-gradient(135deg, #5b9bd5, #4cb8a8);
+    margin-top: 12px;
+    padding: 20px 18px;
+}
+
+.card-sheet .card-title{
+    font-size: 22px;
+}
+
 /* "what costs her most": quieter than the two gradient cards above it */
 .card-weak{
     width: 100%;

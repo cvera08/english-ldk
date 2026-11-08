@@ -42,7 +42,7 @@ const UI = (() => {
     function cacheEls(){
         [
             'screen-home', 'screen-quiz', 'screen-end',
-            'topicGrid', 'countOptions', 'btnRepaso', 'btnNew', 'newBadge', 'newSub', 'btnWeak', 'weakSub', 'stageRow', 'btnBack',
+            'topicGrid', 'countOptions', 'btnRepaso', 'btnNew', 'newBadge', 'newSub', 'sheetRow', 'btnWeak', 'weakSub', 'stageRow', 'btnBack',
             'quizProgressText', 'quizProgressFill',
             'quizInstruction', 'quizPrompt', 'quizOptions', 'quizFeedback',
             'endStars', 'endTitle', 'endScore', 'endBest', 'btnPracticeMissed',
@@ -81,9 +81,16 @@ const UI = (() => {
     const isWaveId = (id) => id.startsWith('wave:');
     const waveOf = (id) => Number(id.slice(5));
 
+    // A sheet from school is played under "sheet:<its id>".
+    const sheetId = (sheet) => `sheet:${sheet.id}`;
+    const isSheetId = (id) => id.startsWith('sheet:');
+    const sheetOf = (id) => CONTENT.sheetById(id.slice(6));
+
     // The record key of a stage is the one "Lo nuevo" already used for it
     // ("new-w4"), so a best score saved before stages existed is still there.
+    // A sheet's is "sheet-<id>": no topic or stage uses that.
     function scoreKey(id){
+        if(isSheetId(id)) return `sheet-${id.slice(6)}`;
         return isWaveId(id) ? `new-w${waveOf(id)}` : id;
     }
 
@@ -91,6 +98,7 @@ const UI = (() => {
         if(id === 'all') return CONTENT.allWords();
         if(id === 'weak') return weakWordObjects();
         if(isWaveId(id)) return CONTENT.wordsOfWave(waveOf(id));
+        if(isSheetId(id)) return CONTENT.wordsOfSheet(sheetOf(id));
         return CONTENT.wordsOf(CONTENT.topicById(id));
     }
 
@@ -125,6 +133,10 @@ const UI = (() => {
         if(isWaveId(id)){
             const stage = CONTENT.stage(waveOf(id));
             return `${stage.emoji} ${stage.name}`;
+        }
+        if(isSheetId(id)){
+            const sheet = sheetOf(id);
+            return `${sheet.icon} ${sheet.name}`;
         }
         return CONTENT.topicById(id).name.es;
     }
@@ -202,6 +214,25 @@ const UI = (() => {
         els.newBadge.innerHTML = scoreBadgeHTML(STORAGE.getBest(scoreKey(waveId(latest))));
     }
 
+    // One card per school sheet, between "Lo nuevo" and the weak list. The
+    // words are the sheet's alone: what the app teaches beyond it stays in
+    // "Repaso general" and the topics.
+    function renderSheetCards(){
+        els.sheetRow.innerHTML = CONTENT.SHEETS.map(sheet => {
+            const count = CONTENT.wordsOfSheet(sheet).length;
+            return `
+            <button class="card card-featured card-sheet" data-sheet="${sheet.id}">
+                <div class="card-badge">${scoreBadgeHTML(STORAGE.getBest(scoreKey(sheetId(sheet))))}</div>
+                <span class="card-icon">${sheet.icon}</span>
+                <span class="card-title">${sheet.name}</span>
+                <span class="card-sub">${plural(count, 'palabra', 'palabras')} de la hoja del cole</span>
+            </button>`;
+        }).join('');
+        els.sheetRow.querySelectorAll('[data-sheet]').forEach(btn => {
+            btn.addEventListener('click', () => startQuiz(`sheet:${btn.dataset.sheet}`));
+        });
+    }
+
     function stageCardHTML(wave){
         const stage = CONTENT.stage(wave);
         const count = CONTENT.wordsOfWave(wave).length;
@@ -244,6 +275,7 @@ const UI = (() => {
         renderTopicGrid();
         renderRepasoBadge();
         renderNewCard();
+        renderSheetCards();
         renderWeakCard();
         renderStageRow();
     }
@@ -256,6 +288,7 @@ const UI = (() => {
         const stages = CONTENT.hasStages() ? CONTENT.waves().slice().reverse() : [];
         return [
             { id: 'all', icon: '🎯', name: 'Repaso general' },
+            ...CONTENT.SHEETS.map(sheet => ({ id: sheetId(sheet), icon: sheet.icon, name: sheet.name })),
             ...stages.map((wave, i) => {
                 const stage = CONTENT.stage(wave);
                 return { id: waveId(wave), icon: stage.emoji, name: i === 0 ? `Lo nuevo · ${stage.name}` : stage.name };
