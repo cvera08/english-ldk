@@ -31,6 +31,13 @@ bar, like a real app.
   one tap away under "Por etapas"; topics are grouped under the stage they
   first appeared in. Each stage keeps its own best score. New material stays
   easy to spot even when it grows an old topic (the colors did exactly that).
+- **Sheets: the school's own list.** The bank holds more than any one sheet
+  does (the classroom, the family, the house… were never on it), so a school
+  sheet is a *subset*: `CONTENT.SHEETS` lists the spellings printed on it, and
+  its card ("Repaso de la hoja", 74 words for the November *Repaso Primero*)
+  plays only those words, wrong answers included, with a best score of its own.
+  The rest of the bank stays in "Repaso general" and the topics. The next sheet
+  is one more object in that list; its card appears by itself.
 - **Words that look the same are not always the same word.** An *orange* is a
   fruit and a color. The bank keeps both (one spelling, two pictures) and the
   engine never offers one as the other's wrong answer.
@@ -40,8 +47,10 @@ bar, like a real app.
   remembers the *exercise*, not just the word: miss the spelling of *purple* and
   the review starts with that same spelling question (fresh, shuffled options),
   and only then — when the list is short enough to keep the round under 12
-  questions — asks each word once more in a different format. Neither touches a
-  saved best score.
+  questions — asks each word once more in a different format. "Lo que más le
+  cuesta" does the same, from the format each word was last missed in (a word
+  recorded before formats were kept gets a random one), and fits the 8/12/16
+  length picked on the menu. Neither touches a saved best score.
 - **Everything is tap-only.** No text inputs anywhere, on purpose: this is meant
   to be played on an iPad or phone by a pre-reader. Even the exam's "write the
   missing letters" exercises became multiple-choice spelling questions here.
@@ -119,7 +128,9 @@ No browser and nothing to install:
 node tests/check.js
 ```
 
-It checks the word bank (unique pictures, homonyms), the stages, `storage.js`
+It checks the word bank (unique pictures, homonyms), the stages, the sheets (every
+listed word exists, no repeats, the November sheet is exactly its 74 words),
+`storage.js`
 against an in-memory `localStorage` (best scores, the per-word memory, damaged
 or unavailable storage), the wiring between `index.html` and `ui.js` (missing
 files, load order, every id the JS touches), the build number, and builds a few
