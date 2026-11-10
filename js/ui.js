@@ -43,7 +43,7 @@ const UI = (() => {
         [
             'screen-home', 'screen-quiz', 'screen-end',
             'topicGrid', 'countOptions', 'btnRepaso', 'btnNew', 'newBadge', 'newSub', 'sheetRow', 'btnWeak', 'weakSub', 'stageRow', 'btnBack',
-            'quizProgressText', 'quizProgressFill',
+            'quizProgressText', 'quizProgressFill', 'progressRunner',
             'quizInstruction', 'quizPrompt', 'quizOptions', 'quizFeedback',
             'endStars', 'endTitle', 'endScore', 'endBest', 'btnPracticeMissed',
             'btnRetry', 'btnMenu', 'confetti', 'btnResetScores',
@@ -448,6 +448,15 @@ const UI = (() => {
         return state.session[state.index];
     }
 
+    // The bar fills as she answers and the unicorn trots along its front edge.
+    // The unicorn is 26px wide, so at the far end it is pulled back by its own
+    // width and stays inside the bar instead of sticking out of the card.
+    function setProgress(ratio){
+        const percent = Math.round(ratio * 100);
+        els.quizProgressFill.style.width = `${percent}%`;
+        els.progressRunner.style.left = `calc(${percent}% - ${percent / 100 * 26}px)`;
+    }
+
     function renderQuestion(){
         state.attemptedWrong = false;
 
@@ -455,7 +464,7 @@ const UI = (() => {
         const total = state.session.length;
 
         els.quizProgressText.textContent = `${state.topicLabel} · Pregunta ${state.index + 1} de ${total}`;
-        els.quizProgressFill.style.width = `${(state.index / total) * 100}%`;
+        setProgress(state.index / total);
 
         els.quizInstruction.textContent = INSTRUCTIONS[q.type];
         els.quizFeedback.textContent = '';
@@ -584,7 +593,7 @@ const UI = (() => {
                 state.correctFirstTry++;
             }
 
-            els.quizProgressFill.style.width = `${((state.index + 1) / state.session.length) * 100}%`;
+            setProgress((state.index + 1) / state.session.length);
 
             // image_to_word and spelling_choice never make a sound on their
             // own — say the word once she's answered, right or wrong along

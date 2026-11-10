@@ -66,6 +66,9 @@ bar, like a real app.
   (`js/icons.js`) — including one reusable hand-drawn kid figure used for every
   body/face word, just pointing at a different spot each time.
 - **Read aloud**: uses the browser's built-in `speechSynthesis`, no audio files.
+- **A unicorn on the progress bar** 🦄 trots along the front of the pink fill as she
+  answers (the same one the math game, *magic-math-kids*, has). It is decorative:
+  it never catches a tap.
 
 ## Project structure
 

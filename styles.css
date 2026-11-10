@@ -448,6 +448,23 @@ button{
 
 /* ---------------- progress bar (shared) ---------------- */
 
+.progress-track{
+    position: relative;
+}
+
+/* the unicorn trots along the bar as she answers (the emoji faces left, so
+   it is mirrored to face the way the bar is going) */
+.progress-runner{
+    position: absolute;
+    top: -9px;
+    left: 0;
+    font-size: 24px;
+    line-height: 1;
+    transition: left .5s ease;
+    transform: scaleX(-1);
+    pointer-events: none;
+}
+
 .progress-bar{
     height: 18px;
     background: #f0e8ef;
